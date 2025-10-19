@@ -1,9 +1,10 @@
 /**
  * @name FkDiscord
- * @version 1.0.0
+ * @version 1.0.1
  * @description Remove all annoying garbage from Discord (like Nitro (and his features), Shop, Boost, Quests, Tags and more...)
  * @author STY1001
  * @source https://github.com/STY1001/FkDiscord
+ * @updateUrl https://raw.githubusercontent.com/STY1001/FkDiscord/refs/heads/master/FkDiscord.plugin.js
  */
 
 function removeChatGifBtn() {
