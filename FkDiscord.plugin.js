@@ -1,8 +1,10 @@
 /**
  * @name FkDiscord
- * @version 1.0.1
+ * @version 1.0.2
  * @description Remove all annoying garbage from Discord (like Nitro (and his features), Shop, Boost, Quests, Tags and more...)
  * @author STY1001
+ * @authorId 1028607912320442410
+ * @website https://sty1001.com
  * @source https://github.com/STY1001/FkDiscord
  * @updateUrl https://raw.githubusercontent.com/STY1001/FkDiscord/refs/heads/master/FkDiscord.plugin.js
  */
