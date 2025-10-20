@@ -9,23 +9,6 @@
  * @updateUrl https://raw.githubusercontent.com/STY1001/FkDiscord/master/FkDiscord.plugin.js
  */
 
-const config = {
-    "info": {
-        "name": "FkDiscord",
-        "version": "1.1.0",
-        "description": "Remove all annoying garbage from Discord (like Nitro (and his features), Shop, Boost, Quests, Tags and more...)",
-    },
-    "changelog": [
-        {
-            "title": "Version 1.1.0",
-            "type": "improved",
-            "items": [
-                "Remove all Nitro and Quest Badges from profile"
-            ]
-        },
-    ]
-};
-
 function removeChatGifBtn() {
     const btnClassId = 'container_fdeb78';
 
