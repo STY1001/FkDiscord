@@ -1,13 +1,30 @@
 /**
  * @name FkDiscord
- * @version 1.0.2
+ * @version 1.1.0
  * @description Remove all annoying garbage from Discord (like Nitro (and his features), Shop, Boost, Quests, Tags and more...)
  * @author STY1001
  * @authorId 1028607912320442410
  * @website https://sty1001.com
  * @source https://github.com/STY1001/FkDiscord
- * @updateUrl https://raw.githubusercontent.com/STY1001/FkDiscord/refs/heads/master/FkDiscord.plugin.js
+ * @updateUrl https://raw.githubusercontent.com/STY1001/FkDiscord/master/FkDiscord.plugin.js
  */
+
+const config = {
+    "info": {
+        "name": "FkDiscord",
+        "version": "1.1.0",
+        "description": "Remove all annoying garbage from Discord (like Nitro (and his features), Shop, Boost, Quests, Tags and more...)",
+    },
+    "changelog": [
+        {
+            "title": "Version 1.1.0",
+            "type": "improved",
+            "items": [
+                "Remove all Nitro and Quest Badges from profile"
+            ]
+        },
+    ]
+};
 
 function removeChatGifBtn() {
     const btnClassId = 'container_fdeb78';
@@ -339,10 +356,10 @@ function removeNitroTabsSettings() {
         for (var i = 0; i < allNitroTabsClassId.length; i++) {
             allNitroTabsClassId[i].style = "display: none;";
         }
-    }    
+    }
 }
 
-function removeNitroWheel(){
+function removeNitroWheel() {
     const wheelClassId = ['nitroWheel_c5f0dc', 'nitroWheel__722a8'];
     for (var j = 0; j < wheelClassId.length; j++) {
         var wheel = document.getElementsByClassName(wheelClassId[j]);
@@ -362,6 +379,58 @@ function removeSideProfileTheme() {
             sideProfile[i].classList.remove('custom-theme-background');
             sideProfile[i].classList.remove('custom-user-profile-theme');
             sideProfile[i].style = "--profile-gradient-primary-color: var(--background-surface-high); --profile-gradient-secondary-color: var(--background-surface-high); --profile-gradient-overlay-color: rgba(0, 0, 0, 0); --profile-gradient-button-color: var(--background-mod-subtle); --profile-gradient-modal-background-color: var(--background-base-lower);";
+        }
+    }
+}
+
+function removeNitroQuestBadges() {
+    const badgesClassId = 'badge__8061a';
+    //Maybe for a future use, it's difficult to get all badge src id
+    const blackBadgeSrcId = [
+        '2ba85e8026a8614b640c2837bcdfe21b',
+        '51040c70d4f20a921ad6674ff86fc95c',
+        '7d9ae358c8c5e118768335dbe68b4fb8',
+        '83d8a1eb09a8d64e59233eec5d4d5c2d',
+        '4514fab914bdbfb4ad2fa23df76121a6',
+        '2895086c18d5531d499862e41d1155a6',
+        'df199d2050d3ed4ebf84d64ae83989f8',
+        '72bed924410c304dbe3d00a6e593ff59',
+        '0e4080d1d333bc7ad29ef6528b6f2fb7',
+        '0d61871f72bb9a33a7ae568c1fb4f20a',
+        'ec92202290b48d0879b7413d2dde3bab',
+        '0334688279c8359120922938dcb1d6f8'
+    ];
+    // Using a whitelist, assuming other badges are nitro/quest related
+    const whiteBadgeSrcId = [
+        '6bdc42827a38498929a4920da12695d9', // Active Developer
+        '6de6d34650760ba5551a79732e98ed60', // Originally known as
+        '011940fd013da3f7fb926e4a1cd2e618', // HypeSquad Brilliance
+        '3aa41de486fa12454c3761e8e223442e', // HypeSquad Balance
+        '8a88d63823d8a71cd5e390baa45efa02'  // HypeSquad Bravery
+    ];
+    const badgeSrcId = whiteBadgeSrcId;
+    var badges = document.getElementsByClassName(badgesClassId);
+    if (badges) {
+        for (var i = 0; i < badges.length; i++) {
+            var badgeSrc = badges[i];
+            if (badgeSrc) {
+                let detected = false;
+                for (var j = 0; j < badgeSrcId.length; j++) {
+                    if (badgeSrc.src.includes(badgeSrcId[j])) {
+                        detected = true;
+                    }
+                }
+                if (detected === false) {
+                    badgeContainer = badgeSrc.parentElement.parentElement;
+                    if (badgeContainer) {
+                        badgeContainer.style = "display: none;";
+                        separator = badgeContainer.nextElementSibling;
+                        if (separator) {
+                            separator.style = "display: none;";
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -392,6 +461,7 @@ function removeFunction() {
     removeNitroTabsSettings();
     removeNitroWheel();
     removeSideProfileTheme();
+    removeNitroQuestBadges();
 }
 
 const delaysec = 10;
