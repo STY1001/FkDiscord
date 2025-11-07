@@ -1,6 +1,6 @@
 /**
  * @name FkDiscord
- * @version 1.1.0
+ * @version 1.1.1
  * @description Remove all annoying garbage from Discord (like Nitro (and his features), Shop, Boost, Quests, Tags and more...)
  * @author STY1001
  * @authorId 1028607912320442410
@@ -224,7 +224,7 @@ function removeProfileGlobalTheme() {
 
             let themeMode = 'null';
             let themeColor = 'null';
-            const themeStore = localStorage.getItem('ThemeStore');
+            const themeStore = 'null';//localStorage.getItem('ThemeStore');
             if (themeStore && themeStore !== 'null') {
                 const themeData = JSON.parse(themeStore);
                 themeMode = themeData._state.theme;
@@ -418,6 +418,16 @@ function removeNitroQuestBadges() {
     }
 }
 
+function removeServerBoostChannel() {
+    const boostChannelBtnClassId = 'container__877f0';
+    var boostChannelBtn = document.getElementsByClassName(boostChannelBtnClassId);
+    if (boostChannelBtn) {
+        for (var i = 0; i < boostChannelBtn.length; i++) {
+            boostChannelBtn[i].style = "display: none;";
+        }
+    }
+}
+
 function removeFunction() {
     removeChatGifBtn();
     removeNitroPopup();
@@ -445,6 +455,7 @@ function removeFunction() {
     removeNitroWheel();
     removeSideProfileTheme();
     removeNitroQuestBadges();
+    removeServerBoostChannel();
 }
 
 const delaysec = 10;
@@ -472,12 +483,6 @@ module.exports = class FkNitro {
             removeFunction();
         });
         observer.observe(targetNode, config);
-    }
-
-    observer(o) {
-        if (("emoji-picker-grid").includes(o.target.id)) {
-
-        }
     }
 
     stop() {
