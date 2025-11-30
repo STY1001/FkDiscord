@@ -1,6 +1,6 @@
 /**
  * @name FkDiscord
- * @version 1.1.1
+ * @version 1.2.0
  * @description Remove all annoying garbage from Discord (like Nitro (and his features), Shop, Boost, Quests, Tags and more...)
  * @author STY1001
  * @authorId 1028607912320442410
@@ -8,6 +8,33 @@
  * @source https://github.com/STY1001/FkDiscord
  * @updateUrl https://raw.githubusercontent.com/STY1001/FkDiscord/master/FkDiscord.plugin.js
  */
+
+const theme = {
+    midnight: ["theme-dark", "theme-midnight", "images-dark"],
+    darker: ["theme-dark", "theme-darker", "images-dark"],
+    dark: ["theme-dark", "images-dark"],
+    light: ["theme-light", "images-light"],
+};
+let currentTheme = 'null';
+
+function checkClientTheme() {
+    var htmlRoot = document.getElementsByTagName('html')[0];
+    if (htmlRoot) {
+        for (const [themeName, classIds] of Object.entries(theme)) {
+            let hasAllClasses = true;
+            for (const classId of classIds) {
+                if (!htmlRoot.classList.contains(classId)) {
+                    hasAllClasses = false;
+                    break;
+                }
+            }
+            if (hasAllClasses) {
+                currentTheme = themeName;
+                break;
+            }
+        }
+    }
+}
 
 function removeChatGifBtn() {
     const btnClassId = 'container_fdeb78';
@@ -203,6 +230,39 @@ function removeProfilePopupTheme() {
             userPopUp[i].classList.remove('custom-theme-background');
             userPopUp[i].classList.remove('custom-user-profile-theme');
             userPopUp[i].style = "--profile-gradient-primary-color: var(--background-surface-high); --profile-gradient-secondary-color: var(--background-surface-high); --profile-gradient-overlay-color: rgba(0, 0, 0, 0); --profile-gradient-button-color: var(--background-mod-subtle); --profile-gradient-modal-background-color: var(--background-base-lower);";
+            let popoutTheme = 'null';
+            for (const [themeName, classIds] of Object.entries(theme)) {
+                let hasAllClasses = true;
+                for (const classId of classIds) {
+                    if (!userPopUp[0].classList.contains(classId)) {
+                        hasAllClasses = false;
+                        break;
+                    }
+                }
+                if (hasAllClasses) {
+                    popoutTheme = themeName;
+                    break;
+                }
+            }
+            if (currentTheme !== 'null' && popoutTheme !== 'null' && currentTheme !== popoutTheme) {
+                for (var i = 0; i < userPopUp.length; i++) {
+                    for (const classId of theme[popoutTheme]) {
+                        userPopUp[i].classList.remove(classId);
+                    }
+                    for (const classId of theme[currentTheme]) {
+                        userPopUp[i].classList.add(classId);
+                    }
+                }
+                const statusIndicatorClassId = 'svg__44b0c';
+                var statusIndicator = document.getElementsByClassName(statusIndicatorClassId);
+                if (statusIndicator[statusIndicator.length - 1]) {
+                    for (var i = 0; i < statusIndicator[statusIndicator.length - 1].children.length; i++) {
+                        if (statusIndicator[statusIndicator.length - 1].children[i] && statusIndicator[statusIndicator.length - 1].children[i].tagName === 'circle') {
+                            statusIndicator[statusIndicator.length - 1].children[i].style = "display: none;";
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -221,53 +281,40 @@ function removeProfileGlobalTheme() {
         for (var i = 0; i < userPopUp.length; i++) {
             userPopUp[i].classList.remove('custom-theme-background');
             userPopUp[i].classList.remove('custom-user-profile-theme');
-
-            let themeMode = 'null';
-            let themeColor = 'null';
-            const themeStore = 'null';//localStorage.getItem('ThemeStore');
-            if (themeStore && themeStore !== 'null') {
-                const themeData = JSON.parse(themeStore);
-                themeMode = themeData._state.theme;
-                if (themeMode) {
-                    switch (themeMode) {
-                        case 'dark':
-                            themeColor = 'dark';
-                            break;
-                        case 'light':
-                            themeColor = 'light';
-                            break;
-                        case 'darker':
-                            themeColor = 'darker';
-                            break;
-                        case 'midnight':
-                            themeColor = 'midnight';
-                            break;
+            userPopUp[i].style = "--profile-gradient-primary-color: var(--background-surface-high); --profile-gradient-secondary-color: var(--background-surface-high); --profile-gradient-overlay-color: rgba(0, 0, 0, 0); --profile-gradient-button-color: var(--background-mod-subtle); --profile-gradient-modal-background-color: var(--background-base-lower);";
+            let popoutTheme = 'null';
+            for (const [themeName, classIds] of Object.entries(theme)) {
+                let hasAllClasses = true;
+                for (const classId of classIds) {
+                    if (!userPopUp[0].classList.contains(classId)) {
+                        hasAllClasses = false;
+                        break;
+                    }
+                }
+                if (hasAllClasses) {
+                    popoutTheme = themeName;
+                    break;
+                }
+            }
+            if (currentTheme !== 'null' && popoutTheme !== 'null' && currentTheme !== popoutTheme) {
+                for (var i = 0; i < userPopUp.length; i++) {
+                    for (const classId of theme[popoutTheme]) {
+                        userPopUp[i].classList.remove(classId);
+                    }
+                    for (const classId of theme[currentTheme]) {
+                        userPopUp[i].classList.add(classId);
+                    }
+                }
+                const statusIndicatorClassId = 'svg__44b0c';
+                var statusIndicator = document.getElementsByClassName(statusIndicatorClassId);
+                if (statusIndicator[statusIndicator.length - 1]) {
+                    for (var i = 0; i < statusIndicator[statusIndicator.length - 1].children.length; i++) {
+                        if (statusIndicator[statusIndicator.length - 1].children[i] && statusIndicator[statusIndicator.length - 1].children[i].tagName === 'circle') {
+                            statusIndicator[statusIndicator.length - 1].children[i].style = "display: none;";
+                        }
                     }
                 }
             }
-
-            if (themeColor && themeColor !== 'null') {
-                userPopUp[i].classList.remove('image-light');
-                userPopUp[i].classList.remove('image-dark');
-                userPopUp[i].classList.remove('theme-dark');
-                userPopUp[i].classList.remove('theme-light');
-                userPopUp[i].classList.remove('theme-dark');
-                userPopUp[i].classList.remove('theme-light');
-                userPopUp[i].classList.remove('theme-darker');
-                userPopUp[i].classList.remove('theme-midnight');
-                userPopUp[i].classList.add('theme-' + themeColor);
-                if (themeColor === 'darker' || themeColor === 'midnight') {
-                    userPopUp[i].classList.add('theme-dark');
-                }
-                if (themeColor === 'light') {
-                    userPopUp[i].classList.add('image-light');
-                }
-                if (themeColor === 'dark' || themeColor === 'darker' || themeColor === 'midnight') {
-                    userPopUp[i].classList.add('image-dark');
-                }
-            }
-
-            userPopUp[i].style = "--profile-gradient-primary-color: var(--background-surface-high); --profile-gradient-secondary-color: var(--background-surface-high); --profile-gradient-overlay-color: rgba(0, 0, 0, 0); --profile-gradient-button-color: var(--background-mod-subtle); --profile-gradient-modal-background-color: var(--background-base-lower);";
         }
     }
 }
@@ -428,7 +475,18 @@ function removeServerBoostChannel() {
     }
 }
 
+function removeProfileBanner() {
+    const bannerClassId = 'banner__68edb';
+    var banner = document.getElementsByClassName(bannerClassId);
+    if (banner) {
+        for (var i = 0; i < banner.length; i++) {
+            banner[i].style = "display: none;";
+        }
+    }
+}
+
 function removeFunction() {
+    checkClientTheme();
     removeChatGifBtn();
     removeNitroPopup();
     removeNitroBtnSelfProfileSmall();
@@ -456,6 +514,7 @@ function removeFunction() {
     removeSideProfileTheme();
     removeNitroQuestBadges();
     removeServerBoostChannel();
+    removeProfileBanner();
 }
 
 const delaysec = 10;
@@ -463,17 +522,8 @@ const delaysec = 10;
 
 module.exports = class FkNitro {
     start() {
-        BdApi.showToast(`Starting FkNitro in ${delaysec} sec...`, { type: 'info' });
-        setTimeout(() => {
-            BdApi.showToast('FkNitro started', { type: 'info' });
-            removeFunction();
-            this.observeChanges();
-        }, delaysec * 1000);
-        for (let i = 0; i < delaysec; i++) {
-            setTimeout(() => {
-                BdApi.showToast((delaysec - i), { type: 'info' });
-            }, i * 1000);
-        }
+        removeFunction();
+        this.observeChanges();
     }
 
     observeChanges() {
@@ -486,7 +536,6 @@ module.exports = class FkNitro {
     }
 
     stop() {
-        BdApi.showToast('FkNitro stopped', { type: 'info' });
     }
 };
 
