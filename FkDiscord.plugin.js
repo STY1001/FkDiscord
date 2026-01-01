@@ -975,7 +975,7 @@ module.exports = class FkNitro {
             const targetNode = document.getElementById('app-mount');    // App-Mount is the base element of discord
             if (!targetNode) throw new Error("App-Mount not found");
             const config = { childList: true, subtree: true };
-            const observer = new MutationObserver(() => {
+            this.observer = new MutationObserver(() => {
                 Logger.info("Change observed, running remove function...")
                 removeFunction();
             });
