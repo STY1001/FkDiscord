@@ -44,7 +44,8 @@ const config = {
     removeProfileTheme: true,
     removeProfileEffect: true,
     removeProfileBanner: true,
-    removeNitroQuestBadges: 3
+    removeNitroQuestBadges: 3,
+    removeDisplayNameStyle: true
 };
 
 const settingsPanel = [
@@ -112,6 +113,7 @@ const settingsPanel = [
 
             { type: "switch", id: "removeProfileEffect", name: "Remove Profile Effects", note: "Remove all profile visual effects.", value: () => config.removeProfileEffect },
             { type: "switch", id: "removeProfileBanner", name: "Remove Profile Banners", note: "Remove profile banners everywhere.", value: () => config.removeProfileBanner },
+            { type: "switch", id: "removeDisplayNameStyle", name: "Remove Display Name Style", note: "Remove display name style style everywhere", value: () => config.removeDisplayNameStyle },
             {
                 type: "dropdown",
                 id: "removeNitroQuestBadges",
@@ -533,9 +535,42 @@ async function removeProfileBanner() {
     }
 }
 
+// Remove display name style globally
+async function removeDisplayNameStyle() {
+    if (!config.removeDisplayNameStyle) return;
+    const nameMemberListClassId = '_703b91fc872193e8-username';             // Membre list
+    const nameMemberListClassIds = ['_703b91fc872193e8-name', '_703b91fc872193e8-username', '_41f68f5eee7f9abd-desaturateUserColors']
+    var nameMemberList = document.getElementsByClassName(nameMemberListClassId);
+    if (nameMemberList) {
+        for (var i = 0; i < nameMemberList.length; i++) {
+            if (nameMemberList[i].classList.length > nameMemberListClassIds.length) {
+                for (var j = 0; j < nameMemberList[i].classList.length; j++) {
+                    if (!nameMemberListClassIds.includes(nameMemberList[i].classList[j])) {
+                        nameMemberList[i].classList.remove(nameMemberList[i].classList[j])
+                    }
+                }
+            }
+        }
+    }
+    const nameChatClassId = 'c19a557985eb7793-username';                // In chat
+    const nameChatClassIds = ['c19a557985eb7793-username', 'c19a557985eb7793-usernameColorOnName', '_41f68f5eee7f9abd-desaturateUserColors', 'c19a557985eb7793-clickable'];
+    var nameChat = document.getElementsByClassName(nameChatClassId);
+    if (nameChat) {
+        for (var i = 0; i < nameChat.length; i++) {
+            if (nameChat[i].classList.length > nameChatClassIds.length) {
+                for (var j = 0; j < nameChat[i].classList.length; j++) {
+                    if (!nameChatClassIds.includes(nameChat[i].classList[j])) {
+                        nameChat[i].classList.remove(nameChat[i].classList[j])
+                    }
+                }
+            }
+        }
+    }
+}
 
 
-// Start of deprecated functions
+
+// #region Deprecated functions
 
 //Functions for small and big self profile nitro/shop buttons (Pop-out and Modal)
 async function removeNitroBtnSelfProfileSmall() {
