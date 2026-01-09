@@ -538,8 +538,8 @@ async function removeProfileBanner() {
 // Remove display name style globally
 async function removeDisplayNameStyle() {
     if (!config.removeDisplayNameStyle) return;
-    const nameMemberListClassId = '_703b91fc872193e8-username';             // Membre list
-    const nameMemberListClassIds = ['_703b91fc872193e8-name', '_703b91fc872193e8-username', '_41f68f5eee7f9abd-desaturateUserColors']
+    const nameMemberListClassId = '_703b91fc872193e8-username';              // In membre list
+    const nameMemberListClassIds = ['_703b91fc872193e8-name', '_703b91fc872193e8-username', '_41f68f5eee7f9abd-desaturateUserColors']   //Whitelist
     var nameMemberList = document.getElementsByClassName(nameMemberListClassId);
     if (nameMemberList) {
         for (var i = 0; i < nameMemberList.length; i++) {
@@ -552,8 +552,8 @@ async function removeDisplayNameStyle() {
             }
         }
     }
-    const nameChatClassId = 'c19a557985eb7793-username';                // In chat
-    const nameChatClassIds = ['c19a557985eb7793-username', 'c19a557985eb7793-usernameColorOnName', '_41f68f5eee7f9abd-desaturateUserColors', 'c19a557985eb7793-clickable'];
+    const nameChatClassId = 'c19a557985eb7793-username';                   // In chat
+    const nameChatClassIds = ['c19a557985eb7793-username', 'c19a557985eb7793-usernameColorOnName', '_41f68f5eee7f9abd-desaturateUserColors', 'c19a557985eb7793-clickable']; // Whitelist
     var nameChat = document.getElementsByClassName(nameChatClassId);
     if (nameChat) {
         for (var i = 0; i < nameChat.length; i++) {
@@ -563,6 +563,35 @@ async function removeDisplayNameStyle() {
                         nameChat[i].classList.remove(nameChat[i].classList[j])
                     }
                 }
+            }
+        }
+    }
+    const nameDMListClassId = '_972a0d22c8afa7f0-username';                // In DM list
+    const nameDMListSubClassId = '_972a0d22c8afa7f0-withDisplayNameStyles'   //Need to be removed
+    var nameDMList = document.getElementsByClassName(nameDMListClassId);
+    if (nameDMList) {
+        for (var i = 0; i < nameDMList.length; i++) {
+            if (nameDMList[i].children[0]) {
+                nameDMList[i].children[0].classList.remove(nameDMListSubClassId);
+                nameDMList[i].children[0].innerHTML = nameDMList[i].children[0].innerText;
+            }
+        }
+    }
+    const namePopUpModalSidePanelClassId = '_63ed30c16c7151f2-usernameRow'      // In side panel, modal ans pop-up
+    const namePopUpSidePanelSubClassId = '_63ed30c16c7151f2-clickableUsername'  // Only present for side panel and pop-up
+    const namePopUpModalSidePanelSubClassId = '_63ed30c16c7151f2-nickname'      // Need to be added
+    var namePopUpModalSidePanel = document.getElementsByClassName(namePopUpModalSidePanelClassId);
+    if (namePopUpModalSidePanel) {
+        for (var i = 0; i < namePopUpModalSidePanel.length; i++) {
+            if (namePopUpModalSidePanel[i].children[0] && namePopUpModalSidePanel[i].children[0].className.includes(namePopUpSidePanelSubClassId)){     // Distinguish side panel/pop-up and modal
+                var namePopUpSidePanelChild = namePopUpModalSidePanel[i].children[0];
+                if (namePopUpSidePanelChild && namePopUpSidePanelChild.children[1]){
+                    namePopUpSidePanelChild.children[1].classList.add(namePopUpModalSidePanelSubClassId);
+                    namePopUpSidePanelChild.children[1].innerHTML = namePopUpSidePanelChild.children[1].innerText;
+                }
+            } else if (namePopUpModalSidePanel[i].children[0]) {
+                namePopUpModalSidePanel[i].children[0].classList.add(namePopUpModalSidePanelSubClassId)
+                namePopUpModalSidePanel[i].children[0].innerHTML = namePopUpModalSidePanel[i].children[0].innerText;
             }
         }
     }
@@ -693,6 +722,7 @@ async function removeFunction() {
     removeNitroQuestBadges();
     removeServerBoostChannel();
     removeProfileBanner();
+    removeDisplayNameStyle();
 }
 
 // Function to load the saved config (or create-it if not exist)
