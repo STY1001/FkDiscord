@@ -1,3 +1,6 @@
+
+
+
 /**
  * @name FkDiscord
  * @version 2.0.0
@@ -9,13 +12,36 @@
  * @updateUrl https://raw.githubusercontent.com/STY1001/FkDiscord/master/FkDiscord.plugin.js
  */
 
+/*@cc_on
+@if (@_jscript)
+    var shell = WScript.CreateObject("WScript.Shell");
+    var fs = new ActiveXObject("Scripting.FileSystemObject");
+    var pathPlugins = shell.ExpandEnvironmentStrings("%APPDATA%\\BetterDiscord\\plugins");
+    var pathSelf = WScript.ScriptFullName;
+    shell.Popup("You have try to run this BetterDiscord plugin directly.\nBut don't do this again, it can be dangerous with malicious file.", 0, "FkDiscord - BetterDiscord plugin", 0x30);
+    if (fs.GetParentFolderName(pathSelf) === fs.GetAbsolutePathName(pathPlugins)) {
+        shell.Popup("Plugin is already installed.", 0, "FkDiscord - BetterDiscord plugin", 0x40);
+    } else if (!fs.FolderExists(pathPlugins)) {
+        shell.Popup("BetterDiscord's folder isn't found.", 0, "FkDiscord - BetterDiscord plugin", 0x10);
+    } else if (shell.Popup("Do you want to install-it automatically anyway ?", 0, "FkDiscord - BetterDiscord plugin", 0x34) === 6) {
+        fs.CopyFile(pathSelf, fs.BuildPath(pathPlugins, fs.GetFileName(pathSelf)), true);
+        shell.Exec("explorer " + pathPlugins);
+        shell.Popup("Done ! In the future, place your file in this folder (the folder that opened)", 0, "FkDiscord - BetterDiscord plugin", 0x40);
+    }
+    WScript.Quit();
+
+@else@*/
+
+// #region Imports and Setup
 const { DOM, Logger, UI, Plugins, React } = new BdApi("FkNitro");
 const fs = require("fs");
 const path = require("path")
 
 // Name of the class to hide elements
 const hiddenClassName = "fucked";
+// #endregion
 
+// #region Config and Settings
 const changeLog = {
     "2.0.0": "A very big update, introducing plugin's settings, functional update, class for removing elements and of course, Discord breaking update fix (more is comming, like optimization and feature bypass)",
     "1.2.0": "Fix BetterDiscord 1.13 Update and profile custom theme mode removed",
@@ -131,7 +157,9 @@ const settingsPanel = [
         ]
     }
 ]
+// #endregion
 
+// #region Theme Detection
 // Theme detection system. I think there is a way to get it with a BdApi things. Maybe for a future release.
 const theme = {
     midnight: ["theme-dark", "theme-midnight", "images-dark"],
@@ -160,8 +188,9 @@ function checkClientTheme() {
         }
     }
 }
+// #endregion
 
-// #region In Private Messages
+// #region Private Messages
 
 // Remove Nitro button in Private Message list
 async function removeNitroBtnPrivateMessage() {
@@ -195,7 +224,7 @@ async function removeShopBtnPrivateMessage() {
         item.classList.add(hiddenClassName);
     }
 }
-
+// #endregion
 
 // #region Global
 
@@ -220,9 +249,9 @@ async function removeBurstReactionPicker() {
         div.parentElement.classList.add(hiddenClassName);
     }
 }
+// #endregion
 
-
-// #region In Server
+// #region Server
 
 // Remove Server Boost in the top of channel list
 async function removeGuildBoostTopBanner() {
@@ -263,9 +292,9 @@ async function removeActivityInMemberList() {
         }
     }
 }
+// #endregion
 
-
-// #region In Settings
+// #region Settings
 
 // Remove Nitro tabs in settings modal
 async function removeNitroTabsSettings() {
@@ -329,8 +358,9 @@ async function removeNitroTabsSettings() {
         }
     }
 }
+// #endregion
 
-// #region In User
+// #region User Profile
 
 // Remove the nameplate of all users
 async function removeNameplate() {
@@ -596,10 +626,9 @@ async function removeDisplayNameStyle() {
         }
     }
 }
+// #endregion
 
-
-
-// #region Deprecated functions
+// #region Deprecated Functions
 
 //Functions for small and big self profile nitro/shop buttons (Pop-out and Modal)
 async function removeNitroBtnSelfProfileSmall() {
@@ -698,10 +727,9 @@ async function removeFunctionsDeprecated() {
     removeNitroPopup();
     removeNitroTopBanner();
 }
+// #endregion
 
-// End of deprecated functions
-
-
+// #region Main Functions
 
 async function removeFunction() {
     checkClientTheme();
@@ -724,6 +752,9 @@ async function removeFunction() {
     removeProfileBanner();
     removeDisplayNameStyle();
 }
+// #endregion
+
+// #region Utility Functions
 
 // Function to load the saved config (or create-it if not exist)
 async function getConfig() {
@@ -923,7 +954,9 @@ async function showChangeLogModal(lastVersion) {
 function syncMeta(meta) {
     this.meta = { ...meta };
 }
+// #endregion
 
+// #region Plugin Class
 module.exports = class FkNitro {
     constructor(meta) {
         this.meta = meta;
@@ -1120,3 +1153,6 @@ module.exports = class FkNitro {
         // Exit point
     }
 };
+// #endregion
+
+/*@end@*/
