@@ -1,6 +1,3 @@
-
-
-
 /**
  * @name FkDiscord
  * @version 2.0.0
@@ -35,7 +32,7 @@
 // #region Imports and Setup
 const { DOM, Logger, UI, Plugins, React } = new BdApi("FkNitro");
 const fs = require("fs");
-const path = require("path")
+const path = require("path");
 
 // Name of the class to hide elements
 const hiddenClassName = "fucked";
@@ -613,9 +610,9 @@ async function removeDisplayNameStyle() {
     var namePopUpModalSidePanel = document.getElementsByClassName(namePopUpModalSidePanelClassId);
     if (namePopUpModalSidePanel) {
         for (var i = 0; i < namePopUpModalSidePanel.length; i++) {
-            if (namePopUpModalSidePanel[i].children[0] && namePopUpModalSidePanel[i].children[0].className.includes(namePopUpSidePanelSubClassId)){     // Distinguish side panel/pop-up and modal
+            if (namePopUpModalSidePanel[i].children[0] && namePopUpModalSidePanel[i].children[0].className.includes(namePopUpSidePanelSubClassId)) {     // Distinguish side panel/pop-up and modal
                 var namePopUpSidePanelChild = namePopUpModalSidePanel[i].children[0];
-                if (namePopUpSidePanelChild && namePopUpSidePanelChild.children[1]){
+                if (namePopUpSidePanelChild && namePopUpSidePanelChild.children[1]) {
                     namePopUpSidePanelChild.children[1].classList.add(namePopUpModalSidePanelSubClassId);
                     namePopUpSidePanelChild.children[1].innerHTML = namePopUpSidePanelChild.children[1].innerText;
                 }
@@ -960,7 +957,7 @@ function syncMeta(meta) {
 module.exports = class FkNitro {
     constructor(meta) {
         this.meta = meta;
-        this.observer = null;
+        this.timer = false;
     }
 
     async start() {
@@ -1067,6 +1064,7 @@ module.exports = class FkNitro {
             return; // Can't start without css
         }
 
+        /*
         // Connect observer
         Logger.info("Connecting observer...");
         try {
@@ -1097,6 +1095,20 @@ module.exports = class FkNitro {
             });
             return; // Can't start without observer
         }
+        */
+
+        // Start the timer
+        // It's seems to be a bad idea but with observer some element are not hidden and observer can execute serval times in a small amount of time or can lockup. Currently 1000ms, to be ajusted
+        Logger.info("Starting the timer...")
+        this.timer = true;
+        new Promise(async r => {
+            while (this.timer) {
+                Logger.info("Tick ! Running remove function...");
+                removeFunction();
+                await new Promise(r2 => setTimeout(r2, 1000));
+            }
+            r();
+        });
 
         Logger.info("Started successfully ! Re-enjoy the Discord xp and fk Discord !");
         UI.showToast("FkDiscord started successfully.", { type: "success", forceShow: true });
@@ -1133,12 +1145,17 @@ module.exports = class FkNitro {
 
     stop() {
         Logger.info("Stopping FkDiscord...");
+        /*
         // Disconnect observer
         Logger.info("Disconnecting observer...");
         if (this.observer) {
             this.observer.disconnect();
             this.observer = null;
         }
+        */
+        //Stop the timer
+        Logger.info("Stopping the timer...")
+        this.timer = false;
         // Removing all hiddenClass from elements
         Logger.info("Removing class for all elements...");
         var elements = document.getElementsByClassName(hiddenClassName);
