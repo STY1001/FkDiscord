@@ -36,6 +36,7 @@ const path = require("path");
 
 // Name of the class to hide elements
 const hiddenClassName = "fucked";
+const notificationDuration = 10000;
 // #endregion
 
 // #region Config and Settings
@@ -50,6 +51,7 @@ const changeLog = {
 };
 
 let showChangeLogAfterUpdate = true;
+let removeInterval = 1000;
 
 const config = {
     removeNitroBtnPrivateMessage: true,
@@ -74,10 +76,22 @@ const config = {
 const settingsPanel = [
     {
         type: "category",
+        id: "pluginSettings",
+        name: "Plugin Settings",
+        collapsible: false,
+        shown: true,
+        settings: [
+            { type: "switch", id: "showChangeLogAfterUpdate", name: "Show Change Log After Update", note: "Show the change log modal after plugin update.", value: () => showChangeLogAfterUpdate },
+            { type: "slider", id: "removeInterval", name: "Remove Interval", note: "Interval (in ms) between each removal function execution.", value: () => removeInterval, min: 100, max: 1000, step: 100, units: "ms", markers: [100, 200, 300, 500, 1000] }
+        ]
+    },
+
+    {
+        type: "category",
         id: "privateMessages",
         name: "Private Messages",
         collapsible: true,
-        shown: true,
+        shown: false,
         settings: [
             { type: "switch", id: "removeNitroBtnPrivateMessage", name: "Remove Nitro Button", note: "Remove Nitro button from private messages list.", value: () => config.removeNitroBtnPrivateMessage },
             { type: "switch", id: "removeQuestBtnPrivateMessage", name: "Remove Quests Button", note: "Remove Quests button from private messages list.", value: () => config.removeQuestBtnPrivateMessage },
@@ -763,14 +777,7 @@ async function getConfig() {
         if (!fs.existsSync(configFilePath)) {     // Doesn't exist: new install
             Logger.warn("Config not found.");
             firstConfig = true;
-            fs.writeFileSync(configFilePath,
-                JSON.stringify({
-                    lastVersion: lastVersion,
-                    showChangeLogAfterUpdate: true,
-                    settings: { ...config }
-                }, null, 4),
-                "utf8"
-            );
+            await setConfig();    // Create config file with default settings
         } else {
             const configJson = JSON.parse(fs.readFileSync(configFilePath, "utf8"));
             for (const [key, value] of Object.entries(config)) {
@@ -785,6 +792,9 @@ async function getConfig() {
             }
             if (configJson.lastVersion) {
                 lastVersion = configJson.lastVersion;   // The version that write the config file for the last time (used for the change log)
+            }
+            if (configJson.removeInterval) {
+                removeInterval = configJson.removeInterval;
             }
         }
         Logger.info(`Reading config done. (New config: [${newConfig.join(",")}], ShowCLAfterU: ${showChangeLogAfterUpdate}, LastV: ${lastVersion})`);
@@ -817,7 +827,8 @@ async function setConfig() {
         fs.writeFileSync(configFilePath,
             JSON.stringify({
                 lastVersion: this.meta.version,
-                showChangeLogAfterUpdate: true,
+                showChangeLogAfterUpdate: showChangeLogAfterUpdate,
+                removeInterval: removeInterval,
                 settings: { ...config }
             }, null, 4),
             "utf8"
@@ -908,7 +919,7 @@ async function applyUpdate() {
             title: "FkDiscord error",
             content: "Failed to update.",
             type: "error",
-            duration: 10000,
+            duration: notificationDuration,
             actions: [
                 {
                     label: "Retry to update",
@@ -973,7 +984,7 @@ module.exports = class FkNitro {
                 title: "FkDiscord error",
                 content: "Failed to read or parse the config file.",
                 type: "error",
-                duration: 10000,
+                duration: notificationDuration,
                 actions: [
                     {
                         label: "Reset the config",
@@ -999,7 +1010,7 @@ module.exports = class FkNitro {
                 title: "FkDiscord warning",
                 content: "Failed to check update.",
                 type: "warning",
-                duration: 10000
+                duration: notificationDuration
             });
         } else {
             if (checkUpdateRet.update && !getConfRet.firstConfig) {
@@ -1007,7 +1018,7 @@ module.exports = class FkNitro {
                     title: "FkDiscord info",
                     content: `A new version is available.\n(${this.meta.version} -> ${checkUpdateRet.newVer})`,
                     type: "info",
-                    duration: 10000,
+                    duration: notificationDuration,
                     actions: [
                         {
                             label: "Update now",
@@ -1051,7 +1062,7 @@ module.exports = class FkNitro {
                 title: "FkDiscord error",
                 content: "Failed to inject the css.",
                 type: "error",
-                duration: 10000,
+                duration: notificationDuration,
                 actions: [
                     {
                         label: "Restart the plugin",
@@ -1083,7 +1094,7 @@ module.exports = class FkNitro {
                 title: "FkDiscord error",
                 content: "Failed to connect observer.",
                 type: "error",
-                duration: 10000,
+                duration: notificationDuration,
                 actions: [
                     {
                         label: "Restart the plugin",
@@ -1098,14 +1109,14 @@ module.exports = class FkNitro {
         */
 
         // Start the timer
-        // It's seems to be a bad idea but with observer some element are not hidden and observer can execute serval times in a small amount of time or can lockup. Currently 1000ms, to be ajusted
+        // It's seems to be a bad idea but with observer some element are not hidden and observer can execute serval times in a small amount of time or can lockup
         Logger.info("Starting the timer...")
         this.timer = true;
         new Promise(async r => {
             while (this.timer) {
                 Logger.info("Tick ! Running remove function...");
                 removeFunction();
-                await new Promise(r2 => setTimeout(r2, 1000));
+                await new Promise(r2 => setTimeout(r2, removeInterval));
             }
             r();
         });
@@ -1115,7 +1126,8 @@ module.exports = class FkNitro {
         UI.showNotification({
             title: "FkDiscord status",
             content: "FkDiscord started successfully.\n\nYou can now re-enjoy the Discord UI/UX !",
-            type: "success"
+            type: "success",
+            duration: notificationDuration
         });
     }
 
@@ -1124,7 +1136,13 @@ module.exports = class FkNitro {
         const panel = UI.buildSettingsPanel({   // Building settings
             settings: settingsPanel,
             onChange: async (category, id, value) => {
-                config[id] = value;
+                if (id === "showChangeLogAfterUpdate") {
+                    showChangeLogAfterUpdate = value;
+                } else if (id === "removeInterval") {
+                    removeInterval = value;
+                } else {
+                    config[id] = value;
+                }
                 await setConfig();
             }
         });
