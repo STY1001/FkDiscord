@@ -70,7 +70,8 @@ const config = {
     removeProfileEffect: true,
     removeProfileBanner: true,
     removeNitroQuestBadges: 3,
-    removeDisplayNameStyle: true
+    removeDisplayNameStyle: true,
+    removeSelfProfileShopBtn: true
 };
 
 const settingsPanel = [
@@ -151,6 +152,7 @@ const settingsPanel = [
             { type: "switch", id: "removeProfileEffect", name: "Remove Profile Effects", note: "Remove all profile visual effects.", value: () => config.removeProfileEffect },
             { type: "switch", id: "removeProfileBanner", name: "Remove Profile Banners", note: "Remove profile banners everywhere.", value: () => config.removeProfileBanner },
             { type: "switch", id: "removeDisplayNameStyle", name: "Remove Display Name Style", note: "Remove display name style style everywhere", value: () => config.removeDisplayNameStyle },
+            { type: "switch", id: "removeSelfProfileShopBtn", name: "Remove Self Profile Shop Button", note: "Remove the shop button in your own profile (modal)", value: () => config.removeSelfProfileShopBtn },
             {
                 type: "dropdown",
                 id: "removeNitroQuestBadges",
@@ -242,18 +244,18 @@ async function removeShopBtnPrivateMessage() {
 // Remove Chat GIF Button in text input area
 async function removeChatGifBtn() {
     if (!config.removeChatGifBtn) return;
-    const btnClassId = 'c0c49a3e5c8626ac-container';
-
-    var btn = document.getElementsByClassName(btnClassId)[0];
-    if (btn) {
-        btn.classList.add(hiddenClassName);
+    const btnContrainerClassId = 'buttons__74017';
+    var btnContainer = document.getElementsByClassName(btnContrainerClassId)[0];
+    if (btnContainer && btnContainer.children[0] && btnContainer.children[1]) {
+        btnContainer.children[0].classList.add(hiddenClassName);
+        btnContainer.children[1].classList.add(hiddenClassName);
     }
 }
 
 // Remove Super Reaction toggle in reaction picker
 async function removeBurstReactionPicker() {
     if (!config.removeBurstReactionPicker) return;
-    const buttonId = '_0d242e583d6053f6-label';
+    const buttonId = 'label__0d242';
 
     var div = document.getElementsByClassName(buttonId)[0];
     if (div) {
@@ -267,7 +269,7 @@ async function removeBurstReactionPicker() {
 // Remove Server Boost in the top of channel list
 async function removeGuildBoostTopBanner() {
     if (!config.removeGuildBoostTopBanner) return;
-    const bannerClassId = '_0d0f9ddd12a3ace3-container';
+    const bannerClassId = 'container__0d0f9';
 
     var banner = document.getElementsByClassName(bannerClassId)[0];
     if (banner) {
@@ -278,7 +280,7 @@ async function removeGuildBoostTopBanner() {
 // Remove server boost button in channel list
 async function removeServerBoostChannel() {
     if (!config.removeServerBoostChannel) return;
-    const boostChannelBtnClassId = '_877f0e9008f12b8d-container';
+    const boostChannelBtnClassId = 'container__877f0';
     var boostChannelBtn = document.getElementsByClassName(boostChannelBtnClassId);
     if (boostChannelBtn) {
         for (var i = 0; i < boostChannelBtn.length; i++) {
@@ -290,12 +292,12 @@ async function removeServerBoostChannel() {
 // Remove the useless activity section in servers member list
 async function removeActivityInMemberList() {
     if (!config.removeActivityInMemberList) return;
-    const activityHeaderClassId = '_095fe51feb41b3bb-headerContainer'; // Header of activities
+    const activityHeaderClassId = 'headerContainer__095fe'; // Header of activities
     var activityHeader = document.getElementsByClassName(activityHeaderClassId)[0];
     if (activityHeader) {
         activityHeader.parentElement.classList.add(hiddenClassName);
     }
-    const activityClassId = '_0f2e83213c878a13-container'; // All the activities
+    const activityClassId = 'container__0f2e8'; // All the activities
     var activity = document.getElementsByClassName(activityClassId);
     if (activity) {
         for (var i = 0; i < activity.length; i++) {
@@ -347,7 +349,7 @@ async function removeNitroTabsSettings() {
 
     // Verifying if a section contain all the ids to ensure it's a Nitro section
     const nitroTabsDataSettingsSidebarItemsId = ['nitro_panel', 'premium_guild_subscriptions_panel', 'subscriptions_panel', 'gift_panel', 'billing_panel'];
-    const sectionClassId = '_409aa1aeee28d5f7-section';
+    const sectionClassId = 'section__409aa';
     const sections = document.getElementsByClassName(sectionClassId);
     if (sections) {
         for (var i = 0; i < sections.length; i++) {
@@ -376,7 +378,7 @@ async function removeNitroTabsSettings() {
 // Remove the nameplate of all users
 async function removeNameplate() {
     if (!config.removeNameplate) return;
-    const nameplateClassId = '_4bbc6dc06e75ad52-container';
+    const nameplateClassId = 'container__4bbc6';
     var nameplate = document.getElementsByClassName(nameplateClassId);
     if (nameplate) {
         for (var i = 0; i < nameplate.length; i++) {
@@ -389,8 +391,8 @@ async function removeNameplate() {
 function removeAvatarDecoration() {
     if (!config.removeAvatarDecoration) return;
     const decorationClassIds = [
-        '_44b0c28be7879b7b-avatarDecoration', //Profile
-        'c19a557985eb7793-avatarDecoration'  //In Chat
+        'avatarDecorationContainer__44b0c', //Profile
+        'avatarDecoration_c19a55'  //In Chat
     ];
     for (var j = 0; j < decorationClassIds.length; j++) {
         var decoration = document.getElementsByClassName(decorationClassIds[j]);
@@ -406,10 +408,10 @@ function removeAvatarDecoration() {
 async function removeServerTag() {
     if (!config.removeServerTag) return;
     const serverTagClassId = [
-        '_5d473ecff348c314-clanTag',   // In member list
-        '_972a0d22c8afa7f0-clanTag',   // In DM list
-        'c19a557985eb7793-clanTagChiplet',  // In chat
-        '_63ed30c16c7151f2-guildTag'  // In user profile pop-up, modal and side panel
+        'clanTag__5d473',   // In member list
+        'clanTag__972a0',   // In DM list
+        'clanTagChiplet_c19a55',  // In chat
+        'guildTagContainer__63ed3'  // In user profile pop-up, modal and side panel
     ];
     for (var i = 0; i < serverTagClassId.length; i++) {
         var serverTag = document.getElementsByClassName(serverTagClassId[i]);
@@ -433,7 +435,7 @@ async function removeProfileTheme() {
     var userProfile = [...userModal, ...userPopUp, ...userSidePanel];
     if (userProfile) {
         if (userModal) {
-            const backgroundClassId = '_9c3bea41fd465666-backgroundImage';  // Modal background
+            const backgroundClassId = 'backgroundImage__9c3be';  // Modal background
             var background = document.getElementsByClassName(backgroundClassId);
             if (background) {
                 for (var i = 0; i < background.length; i++) {
@@ -441,7 +443,7 @@ async function removeProfileTheme() {
                 }
             }
         }
-        const statusIndicatorClassId = '_44b0c28be7879b7b-svg';     // Status indicator background remove (used to have more contrast with custom theme)
+        const statusIndicatorClassId = 'svg__44b0c';     // Status indicator background remove (used to have more contrast with custom theme)
         var statusIndicator = document.getElementsByClassName(statusIndicatorClassId);
         if (statusIndicator) {
             for (var i = 0; i < statusIndicator.length; i++) {
@@ -489,7 +491,7 @@ async function removeProfileTheme() {
 // Remove profile effect in pop-up, modal and side panel
 async function removeProfileEffect() {
     if (!config.removeProfileEffect) return;
-    const effectClassId = '_0137000bc80ab6ea-profileEffects';
+    const effectClassId = 'profileEffects__01370';
     var effect = document.getElementsByClassName(effectClassId);
     if (effect) {
         for (var i = 0; i < effect.length; i++) {
@@ -498,20 +500,21 @@ async function removeProfileEffect() {
     }
 }
 
-// Remove the profile modal Shop button (in self profile only)
-async function removeProfileSettingsShopBanner() {
-    if (!config.removeProfileSettingsShopBanner) return;
-    const bannerClassId = 'container__8279f';
-    var banner = document.getElementsByClassName(bannerClassId)[0];
-    if (banner) {
-        banner.classList.add(hiddenClassName);
+// Remove shop button in your own profile (modal)
+async function removeSelfProfileShopBtn() {
+    if (!config.removeSelfProfileShopBtn) return;
+    const buttonClassId = 'button_a22cb0';
+    var button = document.getElementsByClassName(buttonClassId)[1];
+    if (button && button.children[0].children[0].children[0].children.length == 2) { // Verify if the svg has 2 children (shop icon has 2 part for some reason)
+        button.parentElement.classList.add(hiddenClassName);
+        button.parentElement.nextElementSibling.classList.add(hiddenClassName);
     }
 }
 
 // Remove all non-whitelisted nitro/quest badges in user profile pop-up, modal and side panel
 async function removeNitroQuestBadges() {
     if (!config.removeNitroQuestBadges) return;
-    const badgesClassId = '_8061a5f9dbf6d829-badge';
+    const badgesClassId = 'badge__8061a';
     //const devBadgeSrcId = '6bdc42827a38498929a4920da12695d9'; // Active Developer: Removed by Discord recently
     const assBadgeSrcId = '6de6d34650760ba5551a79732e98ed60'; // Originally known as
     const hypeSquadSrcId = [
@@ -553,10 +556,6 @@ async function removeNitroQuestBadges() {
                     badgeContainer = badgeSrc.parentElement.parentElement;
                     if (badgeContainer) {
                         badgeContainer.classList.add(hiddenClassName);
-                        separator = badgeContainer.nextElementSibling;
-                        if (separator) {
-                            separator.classList.add(hiddenClassName);
-                        }
                     }
                 }
             }
@@ -567,7 +566,7 @@ async function removeNitroQuestBadges() {
 // Remove the user profile banner in pop-up, modal and side panel
 async function removeProfileBanner() {
     if (!config.removeProfileBanner) return;
-    const bannerClassId = '_68edb95846a37624-banner';
+    const bannerClassId = 'banner__68edb';
     var banner = document.getElementsByClassName(bannerClassId);
     if (banner) {
         for (var i = 0; i < banner.length; i++) {
@@ -579,36 +578,43 @@ async function removeProfileBanner() {
 // Remove display name style globally
 async function removeDisplayNameStyle() {
     if (!config.removeDisplayNameStyle) return;
-    const nameMemberListClassId = '_703b91fc872193e8-username';              // In membre list
-    const nameMemberListClassIds = ['_703b91fc872193e8-name', '_703b91fc872193e8-username', '_41f68f5eee7f9abd-desaturateUserColors']   //Whitelist
+    const nameMemberListClassId = 'username__703b9';              // In member list
+    const nameMemberListClassIds = ['name__703b9', 'username__703b9', 'desaturateUserColors__41f68']   //Whitelist
     var nameMemberList = document.getElementsByClassName(nameMemberListClassId);
     if (nameMemberList) {
         for (var i = 0; i < nameMemberList.length; i++) {
             if (nameMemberList[i].classList.length > nameMemberListClassIds.length) {
-                for (var j = 0; j < nameMemberList[i].classList.length; j++) {
-                    if (!nameMemberListClassIds.includes(nameMemberList[i].classList[j])) {
-                        nameMemberList[i].classList.remove(nameMemberList[i].classList[j])
+                const cl = [...nameMemberList[i].classList];
+                for (var j = 0; j < cl.length; j++) {
+                    if (!nameMemberListClassIds.includes(cl[j])) {
+                        nameMemberList[i].classList.remove(cl[j])
                     }
                 }
             }
         }
     }
-    const nameChatClassId = 'c19a557985eb7793-username';                   // In chat
-    const nameChatClassIds = ['c19a557985eb7793-username', 'c19a557985eb7793-usernameColorOnName', '_41f68f5eee7f9abd-desaturateUserColors', 'c19a557985eb7793-clickable']; // Whitelist
+    const nameChatClassId = 'username_c19a55';                   // In chat
+    const nameChatClassIds = ['username_c19a55', 'usernameColorOnName_c19a55', 'desaturateUserColors__41f68', 'clickable_c19a55']; // Whitelist
     var nameChat = document.getElementsByClassName(nameChatClassId);
     if (nameChat) {
         for (var i = 0; i < nameChat.length; i++) {
-            if (nameChat[i].classList.length > nameChatClassIds.length) {
-                for (var j = 0; j < nameChat[i].classList.length; j++) {
-                    if (!nameChatClassIds.includes(nameChat[i].classList[j])) {
-                        nameChat[i].classList.remove(nameChat[i].classList[j])
+            let innerReplace = false; // If no color is applied, likely in the DM or with a colorless role, there is the same number of class as the whitelist even if the element contain bad classes
+            if (nameChat[i].children[0]) {
+                nameChat[i].innerHTML = nameChat[i].children[0].innerText;
+                innerReplace = true;
+            }
+            if ((nameChat[i].classList.length > nameChatClassIds.length) || innerReplace) {
+                const cl = [...nameChat[i].classList];
+                for (var j = 0; j < cl.length; j++) {
+                    if (!nameChatClassIds.includes(cl[j])) {
+                        nameChat[i].classList.remove(cl[j])
                     }
                 }
             }
         }
     }
-    const nameDMListClassId = '_972a0d22c8afa7f0-username';                // In DM list
-    const nameDMListSubClassId = '_972a0d22c8afa7f0-withDisplayNameStyles'   //Need to be removed
+    const nameDMListClassId = 'name__20a53';                // In DM list
+    const nameDMListSubClassId = 'withDisplayNameStyles__972a0'   //Need to be removed
     var nameDMList = document.getElementsByClassName(nameDMListClassId);
     if (nameDMList) {
         for (var i = 0; i < nameDMList.length; i++) {
@@ -618,17 +624,17 @@ async function removeDisplayNameStyle() {
             }
         }
     }
-    const namePopUpModalSidePanelClassId = '_63ed30c16c7151f2-usernameRow'      // In side panel, modal ans pop-up
-    const namePopUpSidePanelSubClassId = '_63ed30c16c7151f2-clickableUsername'  // Only present for side panel and pop-up
-    const namePopUpModalSidePanelSubClassId = '_63ed30c16c7151f2-nickname'      // Need to be added
+    const namePopUpModalSidePanelClassId = 'usernameRow__63ed3'      // In side panel, modal ans pop-up
+    const namePopUpSidePanelSubClassId = 'clickableUsername__63ed3'  // Only present for side panel and pop-up
+    const namePopUpModalSidePanelSubClassId = 'nickname__63ed3'      // Need to be added
     var namePopUpModalSidePanel = document.getElementsByClassName(namePopUpModalSidePanelClassId);
     if (namePopUpModalSidePanel) {
         for (var i = 0; i < namePopUpModalSidePanel.length; i++) {
             if (namePopUpModalSidePanel[i].children[0] && namePopUpModalSidePanel[i].children[0].className.includes(namePopUpSidePanelSubClassId)) {     // Distinguish side panel/pop-up and modal
                 var namePopUpSidePanelChild = namePopUpModalSidePanel[i].children[0];
-                if (namePopUpSidePanelChild && namePopUpSidePanelChild.children[1]) {
-                    namePopUpSidePanelChild.children[1].classList.add(namePopUpModalSidePanelSubClassId);
-                    namePopUpSidePanelChild.children[1].innerHTML = namePopUpSidePanelChild.children[1].innerText;
+                if (namePopUpSidePanelChild && namePopUpSidePanelChild.children[0]) {
+                    namePopUpSidePanelChild.children[0].classList.add(namePopUpModalSidePanelSubClassId);
+                    namePopUpSidePanelChild.children[0].innerHTML = namePopUpSidePanelChild.children[0].innerText;
                 }
             } else if (namePopUpModalSidePanel[i].children[0]) {
                 namePopUpModalSidePanel[i].children[0].classList.add(namePopUpModalSidePanelSubClassId)
@@ -755,7 +761,7 @@ async function removeFunction() {
     removeServerTag();
     removeProfileTheme();
     removeProfileEffect();
-    removeProfileSettingsShopBanner();
+    removeSelfProfileShopBtn();
     removeActivityInMemberList();
     removeNitroTabsSettings();
     removeNitroQuestBadges();
