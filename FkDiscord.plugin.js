@@ -245,6 +245,7 @@ async function removeShopBtnPrivateMessage() {
 async function removeChatGifBtn() {
     if (!config.removeChatGifBtn) return;
     const btnContrainerClassId = 'buttons__74017';
+
     var btnContainer = document.getElementsByClassName(btnContrainerClassId)[0];
     if (btnContainer && btnContainer.children[0] && btnContainer.children[1]) {
         btnContainer.children[0].classList.add(hiddenClassName);
@@ -578,7 +579,7 @@ async function removeProfileBanner() {
 // Remove display name style globally
 async function removeDisplayNameStyle() {
     if (!config.removeDisplayNameStyle) return;
-    const nameMemberListClassId = 'username__703b9';              // In member list
+    const nameMemberListClassId = 'username__703b9';              // In member list (and name in thread list)
     const nameMemberListClassIds = ['name__703b9', 'username__703b9', 'desaturateUserColors__41f68']   //Whitelist
     var nameMemberList = document.getElementsByClassName(nameMemberListClassId);
     if (nameMemberList) {
@@ -593,13 +594,28 @@ async function removeDisplayNameStyle() {
             }
         }
     }
+    const nameThreadListClassId = 'container__703b9';             // Name in thread list
+    var nameThreadList = document.getElementsByClassName(nameThreadListClassId);
+    if (nameThreadList) {
+        for (var i = 0; i < nameThreadList.length; i++) {
+            if (nameThreadList[i].classList.length > 1) {
+                const cl = [...nameThreadList[i].classList];
+                for (var j = 0; j < cl.length; j++) {
+                    if (cl[j] !== nameThreadListClassId) {
+                        nameThreadList[i].classList.remove(cl[j])
+                    }
+                }
+            }
+        }
+    }
     const nameChatClassId = 'username_c19a55';                   // In chat
     const nameChatClassIds = ['username_c19a55', 'usernameColorOnName_c19a55', 'desaturateUserColors__41f68', 'clickable_c19a55']; // Whitelist
+    const emojiClassId = 'emoji_e5de78';         // Avoid false positive for some people with emoji in their name
     var nameChat = document.getElementsByClassName(nameChatClassId);
     if (nameChat) {
         for (var i = 0; i < nameChat.length; i++) {
             let innerReplace = false; // If no color is applied, likely in the DM or with a colorless role, there is the same number of class as the whitelist even if the element contain bad classes
-            if (nameChat[i].children[0]) {
+            if (nameChat[i].children[0] && !nameChat[i].children[0].classList.contains(emojiClassId)) {
                 nameChat[i].innerHTML = nameChat[i].children[0].innerText;
                 innerReplace = true;
             }
