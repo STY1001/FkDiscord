@@ -397,7 +397,7 @@ async function removeNitroTabsSettings() {
 // Remove the nameplate of all users
 async function removeNameplate() {
     if (!config.removeNameplate) return;
-    const nameplateClassId = 'container__4bbc6';
+    const nameplateClassId = 'container_df39b2';
     var nameplate = document.getElementsByClassName(nameplateClassId);
     if (nameplate) {
         for (var i = 0; i < nameplate.length; i++) {
@@ -413,13 +413,13 @@ function removeAvatarDecoration() {
         'avatarDecorationContainer__44b0c', //Profile
         'avatarDecoration_c19a55'  //In Chat
     ];
-    for (var j = 0; j < decorationClassIds.length; j++) {
-        if (!checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel, flags.isMemberList], false) && j == 0) continue;
-        if (!checkFlags(flags.isChat) && j == 1) continue;
-        var decoration = document.getElementsByClassName(decorationClassIds[j]);
+    for (var i = 0; i < decorationClassIds.length; i++) {
+        if (!checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel, flags.isMemberList], false) && i == 0) continue;
+        if (!checkFlags(flags.isChat) && i == 1) continue;
+        var decoration = document.getElementsByClassName(decorationClassIds[i]);
         if (decoration) {
-            for (var i = 0; i < decoration.length; i++) {
-                decoration[i].classList.add(hiddenClassName);
+            for (var j = 0; j < decoration.length; j++) {
+                decoration[j].classList.add(hiddenClassName);
             }
         }
     }
@@ -435,14 +435,17 @@ async function removeServerTag() {
         'guildTagContainer__63ed3'  // In user profile pop-up, modal and side panel
     ];
     for (var i = 0; i < serverTagClassId.length; i++) {
-        if (!checkFlags(flags.isMemberList) && j == 0) continue;
-        if (!checkFlags(flags.isPrivateMessage) && j == 1) continue;
-        if (!checkFlags(flags.isChat) && j == 2) continue;
-        if (!checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel], false) && j == 3) continue;
+        if (!checkFlags(flags.isMemberList) && i == 0) continue;
+        if (!checkFlags(flags.isPrivateMessage) && i == 1) continue;
+        if (!checkFlags(flags.isChat) && i == 2) continue;
+        if (!checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel], false) && i == 3) continue;
         var serverTag = document.getElementsByClassName(serverTagClassId[i]);
         if (serverTag) {
             for (var j = 0; j < serverTag.length; j++) {
                 serverTag[j].classList.add(hiddenClassName);
+                if (i == 2) {
+                    serverTag[j].classList.remove("messageChipletContainerInner__10651"); // Need to remove this higher priority css
+                }
             }
         }
     }
@@ -1041,8 +1044,8 @@ module.exports = class FkNitro {
         this.timer = true;
         new Promise(async r => {
             while (this.timer) {
-                Logger.info("Tick ! Running remove function...");
-                removeFunction();
+                await updateFlags();
+                await removeFunction();
                 await new Promise(r2 => setTimeout(r2, removeInterval));
             }
             r();
