@@ -37,6 +37,19 @@ const path = require("path");
 // Name of the class to hide elements
 const hiddenClassName = "fucked";
 const notificationDuration = 10000;
+
+// Flags to avoid executing function for nothing
+const flags = {
+    isChat: false,
+    isServer: false,
+    isPrivateMessage: false,
+    isProfileModal: false,
+    isSettingsModal: false,
+    isProfilePopUp: false,
+    isProfileSidePanel: false,
+    isMemberList: false,
+    isThreadList: false,
+};
 // #endregion
 
 // #region Config and Settings
@@ -172,6 +185,41 @@ const settingsPanel = [
 ]
 // #endregion
 
+// #region Flags Update
+// Function to update flags according to what is displayed on the screen (to avoid executing functions for nothing and optimize the plugin)
+async function updateFlags() {
+    const dmURLregex = /\/channels\/@me\//;
+    const serverURLregex = /\/channels\/\d+\//;
+    const chatClassId = 'chatContent_f75fb0';
+    const memberListClassId = 'members_c8ffbb';
+    const threadListClassId = 'list_f369db';
+    const popoutProfileClassId = 'user-profile-popout';
+    const modalProfileClassId = 'user-profile-modal-v2';
+    const sidebarProfileClassId = 'user-profile-sidebar';
+    const modalSettingsClassId = 'container_abd9a8';
+
+    flags.isPrivateMessage = dmURLregex.test(window.location.href);
+    flags.isServer = serverURLregex.test(window.location.href);
+
+    if (flags.isServer) {
+        flags.isThreadList = document.getElementsByClassName(threadListClassId)[0] ? true : false;
+    }
+
+    flags.isChat = document.getElementsByClassName(chatClassId)[0] ? true : false;
+    flags.isMemberList = document.getElementsByClassName(memberListClassId)[0] ? true : false;
+    flags.isProfilePopUp = document.getElementsByClassName(popoutProfileClassId)[0] ? true : false;
+    flags.isProfileModal = document.getElementsByClassName(modalProfileClassId)[0] ? true : false;
+    flags.isProfileSidePanel = document.getElementsByClassName(sidebarProfileClassId)[0] ? true : false;
+    flags.isSettingsModal = document.getElementsByClassName(modalSettingsClassId)[0] ? true : false;
+}
+
+function checkFlags(scope, requireAll) {
+    if (!Array.isArray(scope)) return scope;
+    if (requireAll) return scope.every(Boolean);
+    else return scope.some(Boolean);
+}
+// #endregion
+
 // #region Theme Detection
 // Theme detection system. I think there is a way to get it with a BdApi things. Maybe for a future release.
 const theme = {
@@ -207,35 +255,35 @@ function checkClientTheme() {
 
 // Remove Nitro button in Private Message list
 async function removeNitroBtnPrivateMessage() {
+    if (!checkFlags(flags.isPrivateMessage)) return;
     if (!config.removeNitroBtnPrivateMessage) return;
+
     const dataListItemId = '__nitro';
 
     var item = document.querySelector(`[data-list-item-id$="${dataListItemId}"]`);
-    if (item) {
-        item.classList.add(hiddenClassName);
-    }
+    if (item) item.classList.add(hiddenClassName);
 }
 
 // Remove Quest button in Private Message list
 async function removeQuestBtnPrivateMessage() {
+    if (!checkFlags(flags.isPrivateMessage)) return;
     if (!config.removeQuestBtnPrivateMessage) return;
+
     const dataListItemId = '__quests';
 
     var item = document.querySelector(`[data-list-item-id$="${dataListItemId}"]`);
-    if (item) {
-        item.classList.add(hiddenClassName);
-    }
+    if (item) item.classList.add(hiddenClassName);
 }
 
 // Remove Quest button in Private Message list
 async function removeShopBtnPrivateMessage() {
+    if (!checkFlags(flags.isPrivateMessage)) return;
     if (!config.removeShopBtnPrivateMessage) return;
+
     const dataListItemId = '__shop';
 
     var item = document.querySelector(`[data-list-item-id$="${dataListItemId}"]`);
-    if (item) {
-        item.classList.add(hiddenClassName);
-    }
+    if (item) item.classList.add(hiddenClassName);
 }
 // #endregion
 
@@ -243,7 +291,9 @@ async function removeShopBtnPrivateMessage() {
 
 // Remove Chat GIF Button in text input area
 async function removeChatGifBtn() {
+    if (!checkFlags(flags.isChat)) return;
     if (!config.removeChatGifBtn) return;
+
     const btnContrainerClassId = 'buttons__74017';
 
     var btnContainer = document.getElementsByClassName(btnContrainerClassId)[0];
@@ -255,13 +305,13 @@ async function removeChatGifBtn() {
 
 // Remove Super Reaction toggle in reaction picker
 async function removeBurstReactionPicker() {
+    if (!checkFlags([flags.isServer, flags.isChat], true)) return;
     if (!config.removeBurstReactionPicker) return;
+
     const buttonId = 'label__0d242';
 
     var div = document.getElementsByClassName(buttonId)[0];
-    if (div) {
-        div.parentElement.classList.add(hiddenClassName);
-    }
+    if (div) div.parentElement.classList.add(hiddenClassName);
 }
 // #endregion
 
@@ -269,17 +319,18 @@ async function removeBurstReactionPicker() {
 
 // Remove Server Boost in the top of channel list
 async function removeGuildBoostTopBanner() {
+    if (!checkFlags(flags.isServer)) return;
     if (!config.removeGuildBoostTopBanner) return;
+
     const bannerClassId = 'container__0d0f9';
 
     var banner = document.getElementsByClassName(bannerClassId)[0];
-    if (banner) {
-        banner.classList.add(hiddenClassName);
-    }
+    if (banner) banner.classList.add(hiddenClassName);
 }
 
 // Remove server boost button in channel list
 async function removeServerBoostChannel() {
+    if (!checkFlags(flags.isServer)) return;
     if (!config.removeServerBoostChannel) return;
     const boostChannelBtnClassId = 'container__877f0';
     var boostChannelBtn = document.getElementsByClassName(boostChannelBtnClassId);
@@ -292,6 +343,7 @@ async function removeServerBoostChannel() {
 
 // Remove the useless activity section in servers member list
 async function removeActivityInMemberList() {
+    if (!checkFlags([flags.isServer, flags.isMemberList], true)) return;
     if (!config.removeActivityInMemberList) return;
     const activityHeaderClassId = 'headerContainer__095fe'; // Header of activities
     var activityHeader = document.getElementsByClassName(activityHeaderClassId)[0];
@@ -312,42 +364,8 @@ async function removeActivityInMemberList() {
 
 // Remove Nitro tabs in settings modal
 async function removeNitroTabsSettings() {
+    if (!checkFlags(flags.isSettingsModal)) return;
     if (!config.removeNitroTabsSettings) return;
-    /*const nitroFirstTabClassId = 'premiumTab__581ea';                                 // Old method for the old full screen settings
-    const separatorClassId = 'separator_aa8da2';
-    var nitroFirstTab = document.getElementsByClassName(nitroFirstTabClassId)[0];
-    const allNitroTabsClassId = [nitroFirstTab];
-    if (nitroFirstTab) {
-        let topOk = false;
-        let currentElement = nitroFirstTab;
-        while (topOk === false) {
-            currentElement = currentElement.previousElementSibling;
-            if (currentElement) {
-                if (!currentElement.className.includes(separatorClassId)) {
-                    allNitroTabsClassId.push(currentElement);
-                } else {
-                    allNitroTabsClassId.push(currentElement);
-                    topOk = true;
-                }
-            }
-        }
-        let bottomOk = false;
-        currentElement = nitroFirstTab;
-        while (bottomOk === false) {
-            currentElement = currentElement.nextElementSibling;
-            if (currentElement) {
-                if (!currentElement.className.includes(separatorClassId)) {
-                    allNitroTabsClassId.push(currentElement);
-                } else {
-                    bottomOk = true;
-                }
-            }
-        }
-        for (var i = 0; i < allNitroTabsClassId.length; i++) {
-            allNitroTabsClassId[i].classList.add(hiddenClassName);
-        }
-    }*/
-
     // Verifying if a section contain all the ids to ensure it's a Nitro section
     const nitroTabsDataSettingsSidebarItemsId = ['nitro_panel', 'premium_guild_subscriptions_panel', 'subscriptions_panel', 'gift_panel', 'billing_panel'];
     const sectionClassId = 'section__409aa';
@@ -396,6 +414,8 @@ function removeAvatarDecoration() {
         'avatarDecoration_c19a55'  //In Chat
     ];
     for (var j = 0; j < decorationClassIds.length; j++) {
+        if (!checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel, flags.isMemberList], false) && j == 0) continue;
+        if (!checkFlags(flags.isChat) && j == 1) continue;
         var decoration = document.getElementsByClassName(decorationClassIds[j]);
         if (decoration) {
             for (var i = 0; i < decoration.length; i++) {
@@ -415,6 +435,10 @@ async function removeServerTag() {
         'guildTagContainer__63ed3'  // In user profile pop-up, modal and side panel
     ];
     for (var i = 0; i < serverTagClassId.length; i++) {
+        if (!checkFlags(flags.isMemberList) && j == 0) continue;
+        if (!checkFlags(flags.isPrivateMessage) && j == 1) continue;
+        if (!checkFlags(flags.isChat) && j == 2) continue;
+        if (!checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel], false) && j == 3) continue;
         var serverTag = document.getElementsByClassName(serverTagClassId[i]);
         if (serverTag) {
             for (var j = 0; j < serverTag.length; j++) {
@@ -426,6 +450,7 @@ async function removeServerTag() {
 
 // Remove the custom theme of all user (and also restore your current theme) (Modal, Pop-Up and Side Panel)
 async function removeProfileTheme() {
+    if (!checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel], false)) return;
     if (!config.removeProfileTheme) return;
     const userModalClassId = 'user-profile-modal-v2';   // Modal
     const userPopUpClassId = 'user-profile-popout';     // Pop-up
@@ -491,6 +516,7 @@ async function removeProfileTheme() {
 
 // Remove profile effect in pop-up, modal and side panel
 async function removeProfileEffect() {
+    if (!checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel], false)) return;
     if (!config.removeProfileEffect) return;
     const effectClassId = 'profileEffects__01370';
     var effect = document.getElementsByClassName(effectClassId);
@@ -503,6 +529,7 @@ async function removeProfileEffect() {
 
 // Remove shop button in your own profile (modal)
 async function removeSelfProfileShopBtn() {
+    if (!checkFlags(flags.isProfileModal)) return;
     if (!config.removeSelfProfileShopBtn) return;
     const buttonClassId = 'button_a22cb0';
     var button = document.getElementsByClassName(buttonClassId)[1];
@@ -514,6 +541,7 @@ async function removeSelfProfileShopBtn() {
 
 // Remove all non-whitelisted nitro/quest badges in user profile pop-up, modal and side panel
 async function removeNitroQuestBadges() {
+    if (!checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel], false)) return;
     if (!config.removeNitroQuestBadges) return;
     const badgesClassId = 'badge__8061a';
     //const devBadgeSrcId = '6bdc42827a38498929a4920da12695d9'; // Active Developer: Removed by Discord recently
@@ -566,6 +594,7 @@ async function removeNitroQuestBadges() {
 
 // Remove the user profile banner in pop-up, modal and side panel
 async function removeProfileBanner() {
+    if (!checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel], false)) return;
     if (!config.removeProfileBanner) return;
     const bannerClassId = 'banner__68edb';
     var banner = document.getElementsByClassName(bannerClassId);
@@ -579,186 +608,95 @@ async function removeProfileBanner() {
 // Remove display name style globally
 async function removeDisplayNameStyle() {
     if (!config.removeDisplayNameStyle) return;
-    const nameMemberListClassId = 'username__703b9';              // In member list (and name in thread list)
-    const nameMemberListClassIds = ['name__703b9', 'username__703b9', 'desaturateUserColors__41f68']   //Whitelist
-    var nameMemberList = document.getElementsByClassName(nameMemberListClassId);
-    if (nameMemberList) {
-        for (var i = 0; i < nameMemberList.length; i++) {
-            if (nameMemberList[i].classList.length > nameMemberListClassIds.length) {
-                const cl = [...nameMemberList[i].classList];
-                for (var j = 0; j < cl.length; j++) {
-                    if (!nameMemberListClassIds.includes(cl[j])) {
-                        nameMemberList[i].classList.remove(cl[j])
+    if (checkFlags([flags.isMemberList, flags.isThreadList], false)) {
+        const nameMemberListClassId = 'username__703b9';              // In member list (and name in thread list)
+        const nameMemberListClassIds = ['name__703b9', 'username__703b9', 'desaturateUserColors__41f68']   //Whitelist
+        var nameMemberList = document.getElementsByClassName(nameMemberListClassId);
+        if (nameMemberList) {
+            for (var i = 0; i < nameMemberList.length; i++) {
+                if (nameMemberList[i].classList.length > nameMemberListClassIds.length) {
+                    const cl = [...nameMemberList[i].classList];
+                    for (var j = 0; j < cl.length; j++) {
+                        if (!nameMemberListClassIds.includes(cl[j])) {
+                            nameMemberList[i].classList.remove(cl[j])
+                        }
                     }
                 }
             }
         }
     }
-    const nameThreadListClassId = 'container__703b9';             // Name in thread list
-    var nameThreadList = document.getElementsByClassName(nameThreadListClassId);
-    if (nameThreadList) {
-        for (var i = 0; i < nameThreadList.length; i++) {
-            if (nameThreadList[i].classList.length > 1) {
-                const cl = [...nameThreadList[i].classList];
-                for (var j = 0; j < cl.length; j++) {
-                    if (cl[j] !== nameThreadListClassId) {
-                        nameThreadList[i].classList.remove(cl[j])
+    if (checkFlags(flags.isThreadList)) {
+        const nameThreadListClassId = 'container__703b9';             // Name in thread list
+        var nameThreadList = document.getElementsByClassName(nameThreadListClassId);
+        if (nameThreadList) {
+            for (var i = 0; i < nameThreadList.length; i++) {
+                if (nameThreadList[i].classList.length > 1) {
+                    const cl = [...nameThreadList[i].classList];
+                    for (var j = 0; j < cl.length; j++) {
+                        if (cl[j] !== nameThreadListClassId) {
+                            nameThreadList[i].classList.remove(cl[j])
+                        }
                     }
                 }
             }
         }
     }
-    const nameChatClassId = 'username_c19a55';                   // In chat
-    const nameChatClassIds = ['username_c19a55', 'usernameColorOnName_c19a55', 'desaturateUserColors__41f68', 'clickable_c19a55']; // Whitelist
-    const emojiClassId = 'emoji_e5de78';         // Avoid false positive for some people with emoji in their name
-    var nameChat = document.getElementsByClassName(nameChatClassId);
-    if (nameChat) {
-        for (var i = 0; i < nameChat.length; i++) {
-            let innerReplace = false; // If no color is applied, likely in the DM or with a colorless role, there is the same number of class as the whitelist even if the element contain bad classes
-            if (nameChat[i].children[0] && !nameChat[i].children[0].classList.contains(emojiClassId)) {
-                nameChat[i].innerHTML = nameChat[i].children[0].innerText;
-                innerReplace = true;
-            }
-            if ((nameChat[i].classList.length > nameChatClassIds.length) || innerReplace) {
-                const cl = [...nameChat[i].classList];
-                for (var j = 0; j < cl.length; j++) {
-                    if (!nameChatClassIds.includes(cl[j])) {
-                        nameChat[i].classList.remove(cl[j])
+    if (checkFlags(flags.isChat)) {
+        const nameChatClassId = 'username_c19a55';                   // In chat
+        const nameChatClassIds = ['username_c19a55', 'usernameColorOnName_c19a55', 'desaturateUserColors__41f68', 'clickable_c19a55']; // Whitelist
+        const emojiClassId = 'emoji_e5de78';         // Avoid false positive for some people with emoji in their name
+        var nameChat = document.getElementsByClassName(nameChatClassId);
+        if (nameChat) {
+            for (var i = 0; i < nameChat.length; i++) {
+                let innerReplace = false; // If no color is applied, likely in the DM or with a colorless role, there is the same number of class as the whitelist even if the element contain bad classes
+                if (nameChat[i].children[0] && !nameChat[i].children[0].classList.contains(emojiClassId)) {
+                    nameChat[i].innerHTML = nameChat[i].children[0].innerText;
+                    innerReplace = true;
+                }
+                if ((nameChat[i].classList.length > nameChatClassIds.length) || innerReplace) {
+                    const cl = [...nameChat[i].classList];
+                    for (var j = 0; j < cl.length; j++) {
+                        if (!nameChatClassIds.includes(cl[j])) {
+                            nameChat[i].classList.remove(cl[j])
+                        }
                     }
                 }
             }
         }
     }
-    const nameDMListClassId = 'name__20a53';                // In DM list
-    const nameDMListSubClassId = 'withDisplayNameStyles__972a0'   //Need to be removed
-    var nameDMList = document.getElementsByClassName(nameDMListClassId);
-    if (nameDMList) {
-        for (var i = 0; i < nameDMList.length; i++) {
-            if (nameDMList[i].children[0]) {
-                nameDMList[i].children[0].classList.remove(nameDMListSubClassId);
-                nameDMList[i].children[0].innerHTML = nameDMList[i].children[0].innerText;
-            }
-        }
-    }
-    const namePopUpModalSidePanelClassId = 'usernameRow__63ed3'      // In side panel, modal ans pop-up
-    const namePopUpSidePanelSubClassId = 'clickableUsername__63ed3'  // Only present for side panel and pop-up
-    const namePopUpModalSidePanelSubClassId = 'nickname__63ed3'      // Need to be added
-    var namePopUpModalSidePanel = document.getElementsByClassName(namePopUpModalSidePanelClassId);
-    if (namePopUpModalSidePanel) {
-        for (var i = 0; i < namePopUpModalSidePanel.length; i++) {
-            if (namePopUpModalSidePanel[i].children[0] && namePopUpModalSidePanel[i].children[0].className.includes(namePopUpSidePanelSubClassId)) {     // Distinguish side panel/pop-up and modal
-                var namePopUpSidePanelChild = namePopUpModalSidePanel[i].children[0];
-                if (namePopUpSidePanelChild && namePopUpSidePanelChild.children[0]) {
-                    namePopUpSidePanelChild.children[0].classList.add(namePopUpModalSidePanelSubClassId);
-                    namePopUpSidePanelChild.children[0].innerHTML = namePopUpSidePanelChild.children[0].innerText;
+    if (checkFlags(flags.isPrivateMessage)) {
+        const nameDMListClassId = 'name__20a53';                // In DM list
+        const nameDMListSubClassId = 'withDisplayNameStyles__972a0'   //Need to be removed
+        var nameDMList = document.getElementsByClassName(nameDMListClassId);
+        if (nameDMList) {
+            for (var i = 0; i < nameDMList.length; i++) {
+                if (nameDMList[i].children[0]) {
+                    nameDMList[i].children[0].classList.remove(nameDMListSubClassId);
+                    nameDMList[i].children[0].innerHTML = nameDMList[i].children[0].innerText;
                 }
-            } else if (namePopUpModalSidePanel[i].children[0]) {
-                namePopUpModalSidePanel[i].children[0].classList.add(namePopUpModalSidePanelSubClassId)
-                namePopUpModalSidePanel[i].children[0].innerHTML = namePopUpModalSidePanel[i].children[0].innerText;
             }
         }
     }
-}
-// #endregion
-
-// #region Deprecated Functions
-
-//Functions for small and big self profile nitro/shop buttons (Pop-out and Modal)
-async function removeNitroBtnSelfProfileSmall() {
-    const dataListItemId = '__get-premium';
-
-    var btn = document.querySelector(`[data-list-item-id$="${dataListItemId}"]`);
-    if (btn) {
-        btn.classList.add(hiddenClassName);
-        var separator = btn.previousElementSibling;
-        if (separator) {
-            separator.classList.add(hiddenClassName);
-        }
-    }
-}
-async function removeShopBtnSelfProfileSmall() {
-    const dataListItemId = '__shop';
-
-    var btn = document.querySelector(`[data-list-item-id$="${dataListItemId}"]`);
-    if (btn) {
-        btn.classList.add(hiddenClassName);
-        var separator = btn.previousElementSibling;
-        if (separator) {
-            separator.classList.add(hiddenClassName);
-        }
-    }
-}
-async function removeNitroBtnSelfProfileBig() {
-    const btnClassId = 'getPremiumButton_d6b606';
-
-    var btn = document.getElementsByClassName(btnClassId)[0];
-    if (btn) {
-        btn.classList.add(hiddenClassName);
-    }
-}
-async function removeShopBtnSelfProfileBig() {
-    const btnClassId = 'textBanner_f9d37d';
-
-    var btn = document.getElementsByClassName(btnClassId)[0];
-    if (btn) {
-        btn.classList.add(hiddenClassName);
-    }
-}
-
-// Idk lol
-async function removeBoostIconGuildMembers() {
-    const iconClassId = 'premiumIcon_a31c43';
-
-    var icon = document.getElementsByClassName(iconClassId);
-    if (icon) {
-        for (var i = 0; i < icon.length; i++) {
-            icon[i].classList.add(hiddenClassName);
-        }
-    }
-}
-
-// Remove Nitro wheel in profile settings
-async function removeNitroWheelProfileSettings() {
-    const wheelClassId = ['nitroWheel_c5f0dc', 'nitroWheel__722a8'];
-    for (var j = 0; j < wheelClassId.length; j++) {
-        var wheel = document.getElementsByClassName(wheelClassId[j]);
-        if (wheel) {
-            for (var i = 0; i < wheel.length; i++) {
-                wheel[i].classList.add(hiddenClassName);
+    if (checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel], false)) {
+        const namePopUpModalSidePanelClassId = 'usernameRow__63ed3'      // In side panel, modal ans pop-up
+        const namePopUpSidePanelSubClassId = 'clickableUsername__63ed3'  // Only present for side panel and pop-up
+        const namePopUpModalSidePanelSubClassId = 'nickname__63ed3'      // Need to be added
+        var namePopUpModalSidePanel = document.getElementsByClassName(namePopUpModalSidePanelClassId);
+        if (namePopUpModalSidePanel) {
+            for (var i = 0; i < namePopUpModalSidePanel.length; i++) {
+                if (namePopUpModalSidePanel[i].children[0] && namePopUpModalSidePanel[i].children[0].className.includes(namePopUpSidePanelSubClassId)) {     // Distinguish side panel/pop-up and modal
+                    var namePopUpSidePanelChild = namePopUpModalSidePanel[i].children[0];
+                    if (namePopUpSidePanelChild && namePopUpSidePanelChild.children[0]) {
+                        namePopUpSidePanelChild.children[0].classList.add(namePopUpModalSidePanelSubClassId);
+                        namePopUpSidePanelChild.children[0].innerHTML = namePopUpSidePanelChild.children[0].innerText;
+                    }
+                } else if (namePopUpModalSidePanel[i].children[0]) {
+                    namePopUpModalSidePanel[i].children[0].classList.add(namePopUpModalSidePanelSubClassId)
+                    namePopUpModalSidePanel[i].children[0].innerHTML = namePopUpModalSidePanel[i].children[0].innerText;
+                }
             }
         }
     }
-}
-
-// Remove Nitro Pop-up
-async function removeNitroPopup() {
-    const popupClassId = 'popout_2907';
-
-    var popup = document.getElementsByClassName(popupClassId)[0];
-    if (popup) {
-        popup.classList.add(hiddenClassName);
-    }
-}
-
-// Remove Nitro banner on top
-async function removeNitroTopBanner() {
-    const bannerClassId = 'notice_be03aa';
-
-    var banner = document.getElementsByClassName(bannerClassId)[0];
-    if (banner) {
-        banner.classList.add(hiddenClassName);
-    }
-}
-
-async function removeFunctionsDeprecated() {
-    removeNitroBtnSelfProfileSmall();
-    removeShopBtnSelfProfileSmall();
-    removeNitroBtnSelfProfileBig();
-    removeShopBtnSelfProfileBig();
-    removeBoostIconGuildMembers();
-    removeNitroWheelProfileSettings();
-    removeNitroPopup();
-    removeNitroTopBanner();
 }
 // #endregion
 
@@ -1097,39 +1035,6 @@ module.exports = class FkNitro {
             return; // Can't start without css
         }
 
-        /*
-        // Connect observer
-        Logger.info("Connecting observer...");
-        try {
-            const targetNode = document.getElementById('app-mount');    // App-Mount is the base element of discord
-            if (!targetNode) throw new Error("App-Mount not found");
-            const config = { childList: true, subtree: true };
-            this.observer = new MutationObserver(() => {
-                Logger.info("Change observed, running remove function...")
-                removeFunction();
-            });
-            this.observer.observe(targetNode, config);
-        } catch (e) {
-            Logger.error(`Failed to connect observer: ${e}`);
-            UI.showToast("FkDiscord can't start !", { type: "error", forceShow: true });
-            UI.showNotification({
-                title: "FkDiscord error",
-                content: "Failed to connect observer.",
-                type: "error",
-                duration: notificationDuration,
-                actions: [
-                    {
-                        label: "Restart the plugin",
-                        onClick: async () => {
-                            Plugins.reload("FkDiscord");
-                        }
-                    }
-                ]
-            });
-            return; // Can't start without observer
-        }
-        */
-
         // Start the timer
         // It's seems to be a bad idea but with observer some element are not hidden and observer can execute serval times in a small amount of time or can lockup
         Logger.info("Starting the timer...")
@@ -1185,14 +1090,6 @@ module.exports = class FkNitro {
 
     stop() {
         Logger.info("Stopping FkDiscord...");
-        /*
-        // Disconnect observer
-        Logger.info("Disconnecting observer...");
-        if (this.observer) {
-            this.observer.disconnect();
-            this.observer = null;
-        }
-        */
         //Stop the timer
         Logger.info("Stopping the timer...")
         this.timer = false;
