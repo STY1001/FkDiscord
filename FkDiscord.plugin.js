@@ -521,7 +521,7 @@ async function removeProfileTheme() {
 async function removeProfileEffect() {
     if (!checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel], false)) return;
     if (!config.removeProfileEffect) return;
-    const effectClassId = 'profileEffects__01370';
+    const effectClassId = 'profileEffects__0dd08';
     var effect = document.getElementsByClassName(effectClassId);
     if (effect) {
         for (var i = 0; i < effect.length; i++) {
