@@ -54,6 +54,7 @@ const flags = {
 
 // #region Config and Settings
 const changeLog = {
+    "3.0.0": "Another big update, introducing scope system to optimize the plugin, adding display name styles and self profile shop button removal, fix Discord class id changes",
     "2.0.0": "A very big update, introducing plugin's settings, functional update, class for removing elements and of course, Discord breaking update fix (more is comming, like optimization and feature bypass)",
     "1.2.0": "Fix BetterDiscord 1.13 Update and profile custom theme mode removed",
     "1.1.1": "Server Boost channel button added and feature cut down to fix profile popup removal",
