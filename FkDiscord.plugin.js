@@ -188,8 +188,8 @@ const settingsPanel = [
 // #region Flags Update
 // Function to update flags according to what is displayed on the screen (to avoid executing functions for nothing and optimize the plugin)
 async function updateFlags() {
-    const dmURLregex = /\/channels\/@me\//;
-    const serverURLregex = /\/channels\/\d+\//;
+    const dmURLregex = /\/channels\/@me/;
+    const serverURLregex = /\/channels\/\d+/;
     const chatClassId = 'chatContent_f75fb0';
     const memberListClassId = 'members_c8ffbb';
     const threadListClassId = 'list_f369db';
