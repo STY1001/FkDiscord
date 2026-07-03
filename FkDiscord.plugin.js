@@ -1,6 +1,6 @@
 /**
  * @name FkDiscord
- * @version 3.0.0
+ * @version 3.1.0
  * @description Remove all annoying garbage from Discord (like Nitro (and his features), Shop, Boost, Quests, Tags and more...)
  * @author STY1001
  * @authorId 1028607912320442410
@@ -54,6 +54,7 @@ const flags = {
 
 // #region Config and Settings
 const changeLog = {
+    "3.1.0": "Adding style side panel in profile modal, friends activities and custom name style in friends list removal, and fix for various removal",
     "3.0.0": "Another big update, introducing scope system to optimize the plugin, adding display name styles and self profile shop button removal, fix Discord class id changes",
     "2.0.0": "A very big update, introducing plugin's settings, functional update, class for removing elements and of course, Discord breaking update fix (more is comming, like optimization and feature bypass)",
     "1.2.0": "Fix BetterDiscord 1.13 Update and profile custom theme mode removed",
@@ -85,7 +86,9 @@ const config = {
     removeProfileBanner: true,
     removeNitroQuestBadges: 3,
     removeDisplayNameStyle: true,
-    removeSelfProfileShopBtn: true
+    removeSelfProfileShopBtn: true,
+    removeStyleSidePanelSelfProfileModal: true,
+    removeActivityInFriendsList: true
 };
 
 const settingsPanel = [
@@ -111,6 +114,7 @@ const settingsPanel = [
             { type: "switch", id: "removeNitroBtnPrivateMessage", name: "Remove Nitro Button", note: "Remove Nitro button from private messages list.", value: () => config.removeNitroBtnPrivateMessage },
             { type: "switch", id: "removeQuestBtnPrivateMessage", name: "Remove Quests Button", note: "Remove Quests button from private messages list.", value: () => config.removeQuestBtnPrivateMessage },
             { type: "switch", id: "removeShopBtnPrivateMessage", name: "Remove Shop Button", note: "Remove Shop button from private messages list.", value: () => config.removeShopBtnPrivateMessage },
+            { type: "switch", id: "removeActivityInFriendsList", name: "Remove Friends Activities", note: "Remove activity section in friends list.", value: () => config.removeActivityInFriendsList },
         ]
     },
 
@@ -167,6 +171,7 @@ const settingsPanel = [
             { type: "switch", id: "removeProfileBanner", name: "Remove Profile Banners", note: "Remove profile banners everywhere.", value: () => config.removeProfileBanner },
             { type: "switch", id: "removeDisplayNameStyle", name: "Remove Display Name Style", note: "Remove display name style style everywhere", value: () => config.removeDisplayNameStyle },
             { type: "switch", id: "removeSelfProfileShopBtn", name: "Remove Self Profile Shop Button", note: "Remove the shop button in your own profile (modal)", value: () => config.removeSelfProfileShopBtn },
+            { type: "switch", id: "removeStyleSidePanelSelfProfileModal", name: "Remove Self Profile Style Side Panel", note: "Remove the style side panel in your own profile (modal)", value: () => config.removeStyleSidePanelSelfProfileModal },
             {
                 type: "dropdown",
                 id: "removeNitroQuestBadges",
@@ -285,6 +290,20 @@ async function removeShopBtnPrivateMessage() {
 
     var item = document.querySelector(`[data-list-item-id$="${dataListItemId}"]`);
     if (item) item.classList.add(hiddenClassName);
+}
+
+
+// Remove Quest button in Private Message list
+async function removeActivityInFriendsList() {
+    if (!checkFlags(flags.isPrivateMessage)) return;  // TODO: Verify if its frieds list
+    if (!config.removeActivityInFriendsList) return;
+
+    const elementClassId = 'nowPlayingColumn__133bf';
+
+    var nowPlaying = document.getElementsByClassName(elementClassId)[0];
+    if (nowPlaying) {
+        nowPlaying.classList.add(hiddenClassName);
+    }
 }
 // #endregion
 
@@ -433,16 +452,22 @@ async function removeServerTag() {
         'clanTag__5d473',   // In member list
         'clanTag__972a0',   // In DM list
         'clanTagChiplet_c19a55',  // In chat
-        'guildTagContainer__63ed3'  // In user profile pop-up, modal and side panel
+        'guildTagContainer__26b1f',  // In user profile pop-up, modal and side panel
+        'selectButton_ac381c'  // In modal (selection)
     ];
     for (var i = 0; i < serverTagClassId.length; i++) {
         if (!checkFlags(flags.isMemberList) && i == 0) continue;
         if (!checkFlags(flags.isPrivateMessage) && i == 1) continue;
         if (!checkFlags(flags.isChat) && i == 2) continue;
         if (!checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel], false) && i == 3) continue;
+        if (!checkFlags(flags.isProfileModal, false) && i == 4) continue;
         var serverTag = document.getElementsByClassName(serverTagClassId[i]);
         if (serverTag) {
             for (var j = 0; j < serverTag.length; j++) {
+                if (i == 4) {
+                    serverTag[j].parentElement.classList.add(hiddenClassName);
+                    continue;
+                }
                 serverTag[j].classList.add(hiddenClassName);
                 if (i == 2) {
                     serverTag[j].classList.remove("messageChipletContainerInner__10651"); // Need to remove this higher priority css
@@ -537,9 +562,21 @@ async function removeSelfProfileShopBtn() {
     if (!config.removeSelfProfileShopBtn) return;
     const buttonClassId = 'button_a22cb0';
     var button = document.getElementsByClassName(buttonClassId)[1];
-    if (button && button.children[0].children[0].children[0].children.length == 2) { // Verify if the svg has 2 children (shop icon has 2 part for some reason)
+    if (button && button.children[0] && button.children[0].children[0] && button.children[0].children[0].children[0] && button.children[0].children[0].children[0].children && button.children[0].children[0].children[0].children.length == 2) { // Verify if the svg has 2 children (shop icon has 2 part for some reason)
         button.parentElement.classList.add(hiddenClassName);
         button.parentElement.nextElementSibling.classList.add(hiddenClassName);
+    }
+}
+
+// Remove style side panel in your own profile (modal)
+async function removeStyleSidePanelSelfProfileModal() {
+    if (!checkFlags(flags.isProfileModal)) return;
+    if (!config.removeStyleSidePanelSelfProfileModal) return;
+    const panelClassId = 'editingPanelEnabled__9c3be';
+    const removeClassId = 'editingPanelExpanded__9c3be';
+    var element = document.getElementsByClassName(panelClassId)[0];
+    if (element) {
+        element.classList.remove(removeClassId);
     }
 }
 
@@ -586,7 +623,7 @@ async function removeNitroQuestBadges() {
                     }
                 }
                 if (detected === false) {
-                    badgeContainer = badgeSrc.parentElement.parentElement;
+                    badgeContainer = badgeSrc.parentElement;
                     if (badgeContainer) {
                         badgeContainer.classList.add(hiddenClassName);
                     }
@@ -681,6 +718,17 @@ async function removeDisplayNameStyle() {
             }
         }
     }
+    if (checkFlags(flags.isPrivateMessage)) {  // TODO: Verify freind list
+        const nameDMListClassId = 'username__0a06e';                // In friends list
+        var nameDMList = document.getElementsByClassName(nameDMListClassId);
+        if (nameDMList) {
+            for (var i = 0; i < nameDMList.length; i++) {
+                if (nameDMList[i]) {
+                    nameDMList[i].innerHTML = nameDMList[i].innerText;
+                }
+            }
+        }
+    }
     if (checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel], false)) {
         const namePopUpModalSidePanelClassId = 'usernameRow__63ed3'      // In side panel, modal ans pop-up
         const namePopUpSidePanelSubClassId = 'clickableUsername__63ed3'  // Only present for side panel and pop-up
@@ -726,6 +774,8 @@ async function removeFunction() {
     removeServerBoostChannel();
     removeProfileBanner();
     removeDisplayNameStyle();
+    removeStyleSidePanelSelfProfileModal();
+    removeActivityInFriendsList();
 }
 // #endregion
 
