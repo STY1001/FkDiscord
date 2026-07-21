@@ -1,6 +1,6 @@
 /**
  * @name FkDiscord
- * @version 3.1.0
+ * @version 3.1.1
  * @description Remove all annoying garbage from Discord (like Nitro (and his features), Shop, Boost, Quests, Tags and more...)
  * @author STY1001
  * @authorId 1028607912320442410
@@ -54,6 +54,7 @@ const flags = {
 
 // #region Config and Settings
 const changeLog = {
+    "3.1.1": "Fix avatar decoration removing in DM list",
     "3.1.0": "Adding style side panel in profile modal, friends activities and custom name style in friends list removal, and fix for various removal",
     "3.0.0": "Another big update, introducing scope system to optimize the plugin, adding display name styles and self profile shop button removal, fix Discord class id changes",
     "2.0.0": "A very big update, introducing plugin's settings, functional update, class for removing elements and of course, Discord breaking update fix (more is comming, like optimization and feature bypass)",
@@ -434,7 +435,7 @@ function removeAvatarDecoration() {
         'avatarDecoration_c19a55'  //In Chat
     ];
     for (var i = 0; i < decorationClassIds.length; i++) {
-        if (!checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel, flags.isMemberList], false) && i == 0) continue;
+        if (!checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel, flags.isMemberList, flags.isPrivateMessage], false) && i == 0) continue;
         if (!checkFlags(flags.isChat) && i == 1) continue;
         var decoration = document.getElementsByClassName(decorationClassIds[i]);
         if (decoration) {
