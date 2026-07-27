@@ -1,6 +1,6 @@
 /**
  * @name FkDiscord
- * @version 3.1.1
+ * @version 3.1.2
  * @description Remove all annoying garbage from Discord (like Nitro (and his features), Shop, Boost, Quests, Tags and more...)
  * @author STY1001
  * @authorId 1028607912320442410
@@ -49,11 +49,13 @@ const flags = {
     isProfileSidePanel: false,
     isMemberList: false,
     isThreadList: false,
+    isMessageRequest: false
 };
 // #endregion
 
 // #region Config and Settings
 const changeLog = {
+    "3.1.2": "Fix removal in message request page",
     "3.1.1": "Fix avatar decoration removing in DM list",
     "3.1.0": "Adding style side panel in profile modal, friends activities and custom name style in friends list removal, and fix for various removal",
     "3.0.0": "Another big update, introducing scope system to optimize the plugin, adding display name styles and self profile shop button removal, fix Discord class id changes",
@@ -196,6 +198,7 @@ const settingsPanel = [
 // Function to update flags according to what is displayed on the screen (to avoid executing functions for nothing and optimize the plugin)
 async function updateFlags() {
     const dmURLregex = /\/channels\/@me/;
+    const messageRequestURLregex = /\/message-requests/;
     const serverURLregex = /\/channels\/\d+/;
     const chatClassId = 'chatContent_f75fb0';
     const memberListClassId = 'members_c8ffbb';
@@ -206,6 +209,7 @@ async function updateFlags() {
     const modalSettingsClassId = 'container_abd9a8';
 
     flags.isPrivateMessage = dmURLregex.test(window.location.href);
+    flags.isMessageRequest = messageRequestURLregex.test(window.location.href);
     flags.isServer = serverURLregex.test(window.location.href);
 
     if (flags.isServer) {
@@ -262,7 +266,7 @@ function checkClientTheme() {
 
 // Remove Nitro button in Private Message list
 async function removeNitroBtnPrivateMessage() {
-    if (!checkFlags(flags.isPrivateMessage)) return;
+    if (!checkFlags([flags.isPrivateMessage, flags.isMessageRequest], false)) return;
     if (!config.removeNitroBtnPrivateMessage) return;
 
     const dataListItemId = '__nitro';
@@ -273,7 +277,7 @@ async function removeNitroBtnPrivateMessage() {
 
 // Remove Quest button in Private Message list
 async function removeQuestBtnPrivateMessage() {
-    if (!checkFlags(flags.isPrivateMessage)) return;
+    if (!checkFlags([flags.isPrivateMessage, flags.isMessageRequest], false)) return;
     if (!config.removeQuestBtnPrivateMessage) return;
 
     const dataListItemId = '__quests';
@@ -284,7 +288,7 @@ async function removeQuestBtnPrivateMessage() {
 
 // Remove Quest button in Private Message list
 async function removeShopBtnPrivateMessage() {
-    if (!checkFlags(flags.isPrivateMessage)) return;
+    if (!checkFlags([flags.isPrivateMessage, flags.isMessageRequest], false)) return;
     if (!config.removeShopBtnPrivateMessage) return;
 
     const dataListItemId = '__shop';
@@ -294,7 +298,7 @@ async function removeShopBtnPrivateMessage() {
 }
 
 
-// Remove Quest button in Private Message list
+// Remove Friend Activity in Friends list
 async function removeActivityInFriendsList() {
     if (!checkFlags(flags.isPrivateMessage)) return;  // TODO: Verify if its frieds list
     if (!config.removeActivityInFriendsList) return;
@@ -458,7 +462,7 @@ async function removeServerTag() {
     ];
     for (var i = 0; i < serverTagClassId.length; i++) {
         if (!checkFlags(flags.isMemberList) && i == 0) continue;
-        if (!checkFlags(flags.isPrivateMessage) && i == 1) continue;
+        if (!checkFlags([flags.isPrivateMessage, flags.isMessageRequest], false) && i == 1) continue;
         if (!checkFlags(flags.isChat) && i == 2) continue;
         if (!checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel], false) && i == 3) continue;
         if (!checkFlags(flags.isProfileModal, false) && i == 4) continue;
@@ -706,7 +710,7 @@ async function removeDisplayNameStyle() {
             }
         }
     }
-    if (checkFlags(flags.isPrivateMessage)) {
+    if (checkFlags([flags.isPrivateMessage, flags.isMessageRequest], false)) {
         const nameDMListClassId = 'name__20a53';                // In DM list
         const nameDMListSubClassId = 'withDisplayNameStyles__972a0'   //Need to be removed
         var nameDMList = document.getElementsByClassName(nameDMListClassId);
