@@ -1,6 +1,6 @@
 /**
  * @name FkDiscord
- * @version 3.1.2
+ * @version 3.2.0
  * @description Remove all annoying garbage from Discord (like Nitro (and his features), Shop, Boost, Quests, Tags and more...)
  * @author STY1001
  * @authorId 1028607912320442410
@@ -55,6 +55,7 @@ const flags = {
 
 // #region Config and Settings
 const changeLog = {
+    "3.2.0": "Adding profile frame removal, fixing guild tag in profile popup, fixing name display in profile popup, modal and sidepanel",
     "3.1.2": "Fix removal in message request page",
     "3.1.1": "Fix avatar decoration removing in DM list",
     "3.1.0": "Adding style side panel in profile modal, friends activities and custom name style in friends list removal, and fix for various removal",
@@ -91,7 +92,8 @@ const config = {
     removeDisplayNameStyle: true,
     removeSelfProfileShopBtn: true,
     removeStyleSidePanelSelfProfileModal: true,
-    removeActivityInFriendsList: true
+    removeActivityInFriendsList: true,
+    removeProfileFrame: true
 };
 
 const settingsPanel = [
@@ -164,12 +166,11 @@ const settingsPanel = [
         collapsible: true,
         shown: false,
         settings: [
+            { type: "switch", id: "removeProfileFrame", name: "Remove profile frame", note: "Remove profile frame from all users.", value: () => config.removeProfileFrame },
             { type: "switch", id: "removeNameplate", name: "Remove Nameplates", note: "Remove nameplates from all users.", value: () => config.removeNameplate },
             { type: "switch", id: "removeAvatarDecoration", name: "Remove Avatar Decorations", note: "Remove avatar decorations.", value: () => config.removeAvatarDecoration },
             { type: "switch", id: "removeServerTag", name: "Remove Server Tags", note: "Remove server tags in chat, members lists and users profiles", value: () => config.removeServerTag },
-
             { type: "switch", id: "removeProfileTheme", name: "Disable Profile Themes", note: "Disable custom themes in profile modals, popups and side panels", value: () => config.removeProfileTheme },
-
             { type: "switch", id: "removeProfileEffect", name: "Remove Profile Effects", note: "Remove all profile visual effects.", value: () => config.removeProfileEffect },
             { type: "switch", id: "removeProfileBanner", name: "Remove Profile Banners", note: "Remove profile banners everywhere.", value: () => config.removeProfileBanner },
             { type: "switch", id: "removeDisplayNameStyle", name: "Remove Display Name Style", note: "Remove display name style style everywhere", value: () => config.removeDisplayNameStyle },
@@ -419,6 +420,19 @@ async function removeNitroTabsSettings() {
 
 // #region User Profile
 
+// Remove the profile frame of all users
+async function removeProfileFrame() {
+    if (!config.removeProfileFrame) return;
+    if (!checkFlags([flags.isProfilePopUp, flags.isProfileModal], false)) return;
+    const profileFrameClassId = 'profileFrame__7d80f';
+    var profileFrame = document.getElementsByClassName(profileFrameClassId);
+    if (profileFrame) {
+        for (var i = 0; i < profileFrame.length; i++) {
+            profileFrame[i].classList.add(hiddenClassName);
+        }
+    }
+}
+
 // Remove the nameplate of all users
 async function removeNameplate() {
     if (!config.removeNameplate) return;
@@ -457,7 +471,7 @@ async function removeServerTag() {
         'clanTag__5d473',   // In member list
         'clanTag__972a0',   // In DM list
         'clanTagChiplet_c19a55',  // In chat
-        'guildTagContainer__26b1f',  // In user profile pop-up, modal and side panel
+        'guildTagPill__26b1f',  // In user profile pop-up, modal and side panel
         'selectButton_ac381c'  // In modal (selection)
     ];
     for (var i = 0; i < serverTagClassId.length; i++) {
@@ -735,9 +749,9 @@ async function removeDisplayNameStyle() {
         }
     }
     if (checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel], false)) {
-        const namePopUpModalSidePanelClassId = 'usernameRow__63ed3'      // In side panel, modal ans pop-up
-        const namePopUpSidePanelSubClassId = 'clickableUsername__63ed3'  // Only present for side panel and pop-up
-        const namePopUpModalSidePanelSubClassId = 'nickname__63ed3'      // Need to be added
+        const namePopUpModalSidePanelClassId = 'displayNameRow__26b1f'      // In side panel, modal and pop-up
+        const namePopUpSidePanelSubClassId = 'clickable__26b1f'  // Only present for side panel and pop-up
+        const namePopUpModalSidePanelSubClassId = 'noStyles__26b1f'      // Need to be added
         var namePopUpModalSidePanel = document.getElementsByClassName(namePopUpModalSidePanelClassId);
         if (namePopUpModalSidePanel) {
             for (var i = 0; i < namePopUpModalSidePanel.length; i++) {
@@ -767,6 +781,7 @@ async function removeFunction() {
     removeGuildBoostTopBanner();
     removeBurstReactionPicker();
     removeQuestBtnPrivateMessage();
+    removeProfileFrame();
     removeNameplate();
     removeAvatarDecoration();
     removeServerTag();
