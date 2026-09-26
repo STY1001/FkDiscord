@@ -15,7 +15,7 @@ FkDiscord currently remove all these craps:
 - Friends' activity status ("now playing")
 
 **Global UI**
-- GIF button in the chat input
+- Gift button in the chat input
 - Super Reactions toggle in the emoji picker
 
 **Servers**
