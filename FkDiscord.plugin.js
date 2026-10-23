@@ -1,6 +1,6 @@
 /**
  * @name FkDiscord
- * @version 3.2.0
+ * @version 3.2.1
  * @description Remove all annoying garbage from Discord (like Nitro (and his features), Shop, Boost, Quests, Tags and more...)
  * @author STY1001
  * @authorId 1028607912320442410
@@ -55,6 +55,7 @@ const flags = {
 
 // #region Config and Settings
 const changeLog = {
+    "3.2.1": "Fix Gift instead of GIF button, fix self profile server tag selection",
     "3.2.0": "Adding profile frame removal, fixing guild tag in profile popup, fixing name display in profile popup, modal and sidepanel",
     "3.1.2": "Fix removal in message request page",
     "3.1.1": "Fix avatar decoration removing in DM list",
@@ -76,7 +77,7 @@ const config = {
     removeNitroBtnPrivateMessage: true,
     removeQuestBtnPrivateMessage: true,
     removeShopBtnPrivateMessage: true,
-    removeChatGifBtn: true,
+    removeChatGiftBtn: true,
     removeBurstReactionPicker: true,
     removeServerTag: true,
     removeGuildBoostTopBanner: true,
@@ -130,7 +131,7 @@ const settingsPanel = [
         collapsible: true,
         shown: false,
         settings: [
-            { type: "switch", id: "removeChatGifBtn", name: "Remove GIF Button", note: "Remove GIF button from chat input.", value: () => config.removeChatGifBtn },
+            { type: "switch", id: "removeChatGiftBtn", name: "Remove Gift Button", note: "Remove Gift button from chat input.", value: () => config.removeChatGiftBtn },
             { type: "switch", id: "removeBurstReactionPicker", name: "Remove Super Reactions", note: "Remove Super Reaction toggle in emoji picker.", value: () => config.removeBurstReactionPicker },
         ]
     },
@@ -315,17 +316,16 @@ async function removeActivityInFriendsList() {
 
 // #region Global
 
-// Remove Chat GIF Button in text input area
-async function removeChatGifBtn() {
+// Remove Chat Gift Button in text input area
+async function removeChatGiftBtn() {
     if (!checkFlags(flags.isChat)) return;
-    if (!config.removeChatGifBtn) return;
+    if (!config.removeChatGiftBtn) return;
 
-    const btnContrainerClassId = 'buttons__74017';
+    const btnContrainerClassId = 'container__5287f';
 
     var btnContainer = document.getElementsByClassName(btnContrainerClassId)[0];
-    if (btnContainer && btnContainer.children[0] && btnContainer.children[1]) {
-        btnContainer.children[0].classList.add(hiddenClassName);
-        btnContainer.children[1].classList.add(hiddenClassName);
+    if (btnContainer) {
+        btnContainer.classList.add(hiddenClassName);
     }
 }
 
@@ -472,7 +472,7 @@ async function removeServerTag() {
         'clanTag__972a0',   // In DM list
         'clanTagChiplet_c19a55',  // In chat
         'guildTagPill__26b1f',  // In user profile pop-up, modal and side panel
-        'selectButton_ac381c'  // In modal (selection)
+        'selectButtonPill_ac381c',  // In modal (selection)
     ];
     for (var i = 0; i < serverTagClassId.length; i++) {
         if (!checkFlags(flags.isMemberList) && i == 0) continue;
@@ -483,10 +483,6 @@ async function removeServerTag() {
         var serverTag = document.getElementsByClassName(serverTagClassId[i]);
         if (serverTag) {
             for (var j = 0; j < serverTag.length; j++) {
-                if (i == 4) {
-                    serverTag[j].parentElement.classList.add(hiddenClassName);
-                    continue;
-                }
                 serverTag[j].classList.add(hiddenClassName);
                 if (i == 2) {
                     serverTag[j].classList.remove("messageChipletContainerInner__10651"); // Need to remove this higher priority css
@@ -775,7 +771,7 @@ async function removeDisplayNameStyle() {
 
 async function removeFunction() {
     checkClientTheme();
-    removeChatGifBtn();
+    removeChatGiftBtn();
     removeNitroBtnPrivateMessage();
     removeShopBtnPrivateMessage();
     removeGuildBoostTopBanner();
