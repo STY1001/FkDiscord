@@ -1,6 +1,6 @@
 /**
  * @name FkDiscord
- * @version 3.2.1
+ * @version 3.2.2
  * @description Remove all annoying garbage from Discord (like Nitro (and his features), Shop, Boost, Quests, Tags and more...)
  * @author STY1001
  * @authorId 1028607912320442410
@@ -55,6 +55,7 @@ const flags = {
 
 // #region Config and Settings
 const changeLog = {
+    "3.2.2": "Fix Nitro tabs in settings",
     "3.2.1": "Fix Gift instead of GIF button, fix self profile server tag selection",
     "3.2.0": "Adding profile frame removal, fixing guild tag in profile popup, fixing name display in profile popup, modal and sidepanel",
     "3.1.2": "Fix removal in message request page",
@@ -398,11 +399,11 @@ async function removeNitroTabsSettings() {
     const sections = document.getElementsByClassName(sectionClassId);
     if (sections) {
         for (var i = 0; i < sections.length; i++) {
-            if (sections[i] && sections[i].children.length === (nitroTabsDataSettingsSidebarItemsId.length + 1)) {
+            if (sections[i] && sections[i].children[1] && sections[i].children[1].children.length === (nitroTabsDataSettingsSidebarItemsId.length)) {
                 let nitroTabNumber = 0;
-                for (var j = 0; j < sections[i].children.length; j++) {
+                for (var j = 0; j < sections[i].children[1].children.length; j++) {
                     for (var k = 0; k < nitroTabsDataSettingsSidebarItemsId.length; k++) {
-                        if (sections[i].children[j].getAttribute('data-settings-sidebar-item') === nitroTabsDataSettingsSidebarItemsId[k]) {
+                        if (sections[i].children[1].children[j].getAttribute('data-settings-sidebar-item') === nitroTabsDataSettingsSidebarItemsId[k]) {
                             nitroTabNumber++;
                             break;
                         }
