@@ -1,6 +1,6 @@
 /**
  * @name FkDiscord
- * @version 3.2.2
+ * @version 3.3.0
  * @description Remove all annoying garbage from Discord (like Nitro (and his features), Shop, Boost, Quests, Tags and more...)
  * @author STY1001
  * @authorId 1028607912320442410
@@ -49,12 +49,14 @@ const flags = {
     isProfileSidePanel: false,
     isMemberList: false,
     isThreadList: false,
-    isMessageRequest: false
+    isMessageRequest: false,
+    isFriendList: false,
 };
 // #endregion
 
 // #region Config and Settings
 const changeLog = {
+    "3.3.0": "Adding handle for friend list and fix of all class ids changes",
     "3.2.2": "Fix Nitro tabs in settings",
     "3.2.1": "Fix Gift instead of GIF button, fix self profile server tag selection",
     "3.2.0": "Adding profile frame removal, fixing guild tag in profile popup, fixing name display in profile popup, modal and sidepanel",
@@ -203,13 +205,14 @@ async function updateFlags() {
     const dmURLregex = /\/channels\/@me/;
     const messageRequestURLregex = /\/message-requests/;
     const serverURLregex = /\/channels\/\d+/;
-    const chatClassId = 'chatContent_f75fb0';
-    const memberListClassId = 'members_c8ffbb';
-    const threadListClassId = 'list_f369db';
+    const chatClassId = 'chatContent_z_gUBg';
+    const memberListClassId = 'members_86es0b';
+    const threadListClassId = 'list_BkGrJJ';
     const popoutProfileClassId = 'user-profile-popout';
     const modalProfileClassId = 'user-profile-modal-v2';
     const sidebarProfileClassId = 'user-profile-sidebar';
-    const modalSettingsClassId = 'container_abd9a8';
+    const modalSettingsClassId = 'container_NdjzJd';
+    const friendListClassId = 'peopleColumn_zrUwGA';
 
     flags.isPrivateMessage = dmURLregex.test(window.location.href);
     flags.isMessageRequest = messageRequestURLregex.test(window.location.href);
@@ -225,6 +228,7 @@ async function updateFlags() {
     flags.isProfileModal = document.getElementsByClassName(modalProfileClassId)[0] ? true : false;
     flags.isProfileSidePanel = document.getElementsByClassName(sidebarProfileClassId)[0] ? true : false;
     flags.isSettingsModal = document.getElementsByClassName(modalSettingsClassId)[0] ? true : false;
+    flags.isFriendList = document.getElementsByClassName(friendListClassId)[0] ? true : false;
 }
 
 function checkFlags(scope, requireAll) {
@@ -303,10 +307,10 @@ async function removeShopBtnPrivateMessage() {
 
 // Remove Friend Activity in Friends list
 async function removeActivityInFriendsList() {
-    if (!checkFlags(flags.isPrivateMessage)) return;  // TODO: Verify if its frieds list
+    if (!checkFlags(flags.isFriendList)) return;
     if (!config.removeActivityInFriendsList) return;
 
-    const elementClassId = 'nowPlayingColumn__133bf';
+    const elementClassId = 'nowPlayingColumn_zrUwGA';
 
     var nowPlaying = document.getElementsByClassName(elementClassId)[0];
     if (nowPlaying) {
@@ -349,7 +353,7 @@ async function removeGuildBoostTopBanner() {
     if (!checkFlags(flags.isServer)) return;
     if (!config.removeGuildBoostTopBanner) return;
 
-    const bannerClassId = 'container__0d0f9';
+    const bannerClassId = 'container_BFMMcK';
 
     var banner = document.getElementsByClassName(bannerClassId)[0];
     if (banner) banner.classList.add(hiddenClassName);
@@ -359,7 +363,7 @@ async function removeGuildBoostTopBanner() {
 async function removeServerBoostChannel() {
     if (!checkFlags(flags.isServer)) return;
     if (!config.removeServerBoostChannel) return;
-    const boostChannelBtnClassId = 'container__877f0';
+    const boostChannelBtnClassId = 'container_QSrt0b';
     var boostChannelBtn = document.getElementsByClassName(boostChannelBtnClassId);
     if (boostChannelBtn) {
         for (var i = 0; i < boostChannelBtn.length; i++) {
@@ -372,12 +376,12 @@ async function removeServerBoostChannel() {
 async function removeActivityInMemberList() {
     if (!checkFlags([flags.isServer, flags.isMemberList], true)) return;
     if (!config.removeActivityInMemberList) return;
-    const activityHeaderClassId = 'headerContainer__095fe'; // Header of activities
+    const activityHeaderClassId = 'headerContainer_HxSvbL'; // Header of activities
     var activityHeader = document.getElementsByClassName(activityHeaderClassId)[0];
     if (activityHeader) {
         activityHeader.parentElement.classList.add(hiddenClassName);
     }
-    const activityClassId = 'container__0f2e8'; // All the activities
+    const activityClassId = 'container_g7esM5'; // All the activities
     var activity = document.getElementsByClassName(activityClassId);
     if (activity) {
         for (var i = 0; i < activity.length; i++) {
@@ -395,7 +399,7 @@ async function removeNitroTabsSettings() {
     if (!config.removeNitroTabsSettings) return;
     // Verifying if a section contain all the ids to ensure it's a Nitro section
     const nitroTabsDataSettingsSidebarItemsId = ['nitro_panel', 'premium_guild_subscriptions_panel', 'subscriptions_panel', 'gift_panel', 'billing_panel'];
-    const sectionClassId = 'section__409aa';
+    const sectionClassId = 'section_cR4ic2';
     const sections = document.getElementsByClassName(sectionClassId);
     if (sections) {
         for (var i = 0; i < sections.length; i++) {
@@ -437,7 +441,7 @@ async function removeProfileFrame() {
 // Remove the nameplate of all users
 async function removeNameplate() {
     if (!config.removeNameplate) return;
-    const nameplateClassId = 'container_df39b2';
+    const nameplateClassId = 'container_AFi54G';
     var nameplate = document.getElementsByClassName(nameplateClassId);
     if (nameplate) {
         for (var i = 0; i < nameplate.length; i++) {
@@ -450,8 +454,8 @@ async function removeNameplate() {
 function removeAvatarDecoration() {
     if (!config.removeAvatarDecoration) return;
     const decorationClassIds = [
-        'avatarDecorationContainer__44b0c', //Profile
-        'avatarDecoration_c19a55'  //In Chat
+        'avatarDecorationContainer_XpIUHy', //Profile
+        'avatarDecoration_2i8Bfm'  //In Chat
     ];
     for (var i = 0; i < decorationClassIds.length; i++) {
         if (!checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel, flags.isMemberList, flags.isPrivateMessage], false) && i == 0) continue;
@@ -469,11 +473,12 @@ function removeAvatarDecoration() {
 async function removeServerTag() {
     if (!config.removeServerTag) return;
     const serverTagClassId = [
-        'clanTag__5d473',   // In member list
-        'clanTag__972a0',   // In DM list
-        'clanTagChiplet_c19a55',  // In chat
-        'guildTagPill__26b1f',  // In user profile pop-up, modal and side panel
-        'selectButtonPill_ac381c',  // In modal (selection)
+        'clanTag_Iy0c7A',   // In member list
+        'clanTag_zln_tS',   // In DM list
+        'clanTagChiplet_2i8Bfm',  // In chat
+        'guildTagPill_C2XpHA',  // In user profile pop-up, modal and side panel
+        'selectButtonPill_C3qxaU',  // In modal (selection)
+        'guildTag_PTA1Mz' // In friend list
     ];
     for (var i = 0; i < serverTagClassId.length; i++) {
         if (!checkFlags(flags.isMemberList) && i == 0) continue;
@@ -481,12 +486,13 @@ async function removeServerTag() {
         if (!checkFlags(flags.isChat) && i == 2) continue;
         if (!checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel], false) && i == 3) continue;
         if (!checkFlags(flags.isProfileModal, false) && i == 4) continue;
+        if (!checkFlags(flags.isFriendList, false) && i == 5) continue;
         var serverTag = document.getElementsByClassName(serverTagClassId[i]);
         if (serverTag) {
             for (var j = 0; j < serverTag.length; j++) {
                 serverTag[j].classList.add(hiddenClassName);
                 if (i == 2) {
-                    serverTag[j].classList.remove("messageChipletContainerInner__10651"); // Need to remove this higher priority css
+                    serverTag[j].classList.remove("messageChipletContainerInner_k8jyN7"); // Need to remove this higher priority css
                 }
             }
         }
@@ -563,7 +569,7 @@ async function removeProfileTheme() {
 async function removeProfileEffect() {
     if (!checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel], false)) return;
     if (!config.removeProfileEffect) return;
-    const effectClassId = 'profileEffects__0dd08';
+    const effectClassId = 'profileEffects_ZjcCyW';
     var effect = document.getElementsByClassName(effectClassId);
     if (effect) {
         for (var i = 0; i < effect.length; i++) {
@@ -588,8 +594,8 @@ async function removeSelfProfileShopBtn() {
 async function removeStyleSidePanelSelfProfileModal() {
     if (!checkFlags(flags.isProfileModal)) return;
     if (!config.removeStyleSidePanelSelfProfileModal) return;
-    const panelClassId = 'editingPanelEnabled__9c3be';
-    const removeClassId = 'editingPanelExpanded__9c3be';
+    const panelClassId = 'editingPanelEnabled_s3DB6Y';
+    const removeClassId = 'editingPanelExpanded_s3DB6Y';
     var element = document.getElementsByClassName(panelClassId)[0];
     if (element) {
         element.classList.remove(removeClassId);
@@ -608,6 +614,18 @@ async function removeNitroQuestBadges() {
         '3aa41de486fa12454c3761e8e223442e', // HypeSquad Balance
         '8a88d63823d8a71cd5e390baa45efa02'  // HypeSquad Bravery
     ];
+    const ageSrcId = [  // For a future option, I will add also screen and game time
+        'b5716cca77a6e24b20eabe4d008479a9', //1Year
+        'd7648c523cf6322e650b4f7ea718b8a3', //2Year
+        '73d2776a9c6d93a7e041e6fd90da86f6', //3Year
+        'bce1cb27ae581e866dc86f9f16e4046e', //4Year
+        'c2ff7d8d6285305f969be81c3c92dd78', //5Year
+        '813d80b654901205a69da56b5e5ff2e4', //6Year
+        'e9cdafeb9234bd7262e733e6072d1739', //7Year 
+        '2f766b95be1f0bfcc69404ab898cf71a', //8Year
+        '7c078b2e82d6010fe46268ff204927de', //9Year
+        'c478f85138cb30158637442110ab33b7', //10+Year
+    ]
     const whiteBadgeSrcId = [];
 
     switch (config.removeNitroQuestBadges) {
@@ -666,8 +684,8 @@ async function removeProfileBanner() {
 async function removeDisplayNameStyle() {
     if (!config.removeDisplayNameStyle) return;
     if (checkFlags([flags.isMemberList, flags.isThreadList], false)) {
-        const nameMemberListClassId = 'username__703b9';              // In member list (and name in thread list)
-        const nameMemberListClassIds = ['name__703b9', 'username__703b9', 'desaturateUserColors__41f68']   //Whitelist
+        const nameMemberListClassId = 'username_Wo4EpK';              // In member list (and name in thread list)
+        const nameMemberListClassIds = ['name_Wo4EpK', 'username_Wo4EpK', 'desaturateUserColors_7XwbLf']   //Whitelist
         var nameMemberList = document.getElementsByClassName(nameMemberListClassId);
         if (nameMemberList) {
             for (var i = 0; i < nameMemberList.length; i++) {
@@ -683,7 +701,7 @@ async function removeDisplayNameStyle() {
         }
     }
     if (checkFlags(flags.isThreadList)) {
-        const nameThreadListClassId = 'container__703b9';             // Name in thread list
+        const nameThreadListClassId = 'container_Wo4EpK';             // Name in thread list
         var nameThreadList = document.getElementsByClassName(nameThreadListClassId);
         if (nameThreadList) {
             for (var i = 0; i < nameThreadList.length; i++) {
@@ -699,9 +717,9 @@ async function removeDisplayNameStyle() {
         }
     }
     if (checkFlags(flags.isChat)) {
-        const nameChatClassId = 'username_c19a55';                   // In chat
-        const nameChatClassIds = ['username_c19a55', 'usernameColorOnName_c19a55', 'desaturateUserColors__41f68', 'clickable_c19a55']; // Whitelist
-        const emojiClassId = 'emoji_e5de78';         // Avoid false positive for some people with emoji in their name
+        const nameChatClassId = 'username_2i8Bfm';                   // In chat
+        const nameChatClassIds = ['username_2i8Bfm', 'usernameColorOnName_2i8Bfm', 'desaturateUserColors_7XwbLf', 'clickable_2i8Bfm']; // Whitelist
+        const emojiClassId = 'emoji_HG2xvK';         // Avoid false positive for some people with emoji in their name
         var nameChat = document.getElementsByClassName(nameChatClassId);
         if (nameChat) {
             for (var i = 0; i < nameChat.length; i++) {
@@ -722,8 +740,8 @@ async function removeDisplayNameStyle() {
         }
     }
     if (checkFlags([flags.isPrivateMessage, flags.isMessageRequest], false)) {
-        const nameDMListClassId = 'name__20a53';                // In DM list
-        const nameDMListSubClassId = 'withDisplayNameStyles__972a0'   //Need to be removed
+        const nameDMListClassId = 'name_TBNqol';                // In DM list
+        const nameDMListSubClassId = 'withDisplayNameStyles_zln_tS'   //Need to be removed
         var nameDMList = document.getElementsByClassName(nameDMListClassId);
         if (nameDMList) {
             for (var i = 0; i < nameDMList.length; i++) {
@@ -734,8 +752,8 @@ async function removeDisplayNameStyle() {
             }
         }
     }
-    if (checkFlags(flags.isPrivateMessage)) {  // TODO: Verify freind list
-        const nameDMListClassId = 'username__0a06e';                // In friends list
+    if (checkFlags(flags.isFriendList)) {
+        const nameDMListClassId = 'username_jPuNMC';                // In friends list
         var nameDMList = document.getElementsByClassName(nameDMListClassId);
         if (nameDMList) {
             for (var i = 0; i < nameDMList.length; i++) {
@@ -746,9 +764,9 @@ async function removeDisplayNameStyle() {
         }
     }
     if (checkFlags([flags.isProfileModal, flags.isProfilePopUp, flags.isProfileSidePanel], false)) {
-        const namePopUpModalSidePanelClassId = 'displayNameRow__26b1f'      // In side panel, modal and pop-up
-        const namePopUpSidePanelSubClassId = 'clickable__26b1f'  // Only present for side panel and pop-up
-        const namePopUpModalSidePanelSubClassId = 'noStyles__26b1f'      // Need to be added
+        const namePopUpModalSidePanelClassId = 'displayNameRow_C2XpHA'      // In side panel, modal and pop-up
+        const namePopUpSidePanelSubClassId = 'clickable_C2XpHA'  // Only present for side panel and pop-up
+        const namePopUpModalSidePanelSubClassId = 'noStyles_C2XpHA'      // Need to be added
         var namePopUpModalSidePanel = document.getElementsByClassName(namePopUpModalSidePanelClassId);
         if (namePopUpModalSidePanel) {
             for (var i = 0; i < namePopUpModalSidePanel.length; i++) {
